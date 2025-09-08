@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Note nhanh — Simple</title>
+  <style>
+    :root{
+      --bg:#f6f7fb; --card:#ffffff; --muted:#6b7280; --accent:#6c5ce7;
+      --radius:14px; --shadow:0 6px 18px rgba(28,30,40,0.08);
+      --gap:14px; --maxwidth:880px;
+      --text:#111827; --border:#e6e9f2; --subtle:#f0f2fb;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    [data-theme="dark"]{
+      --bg:#0b0d14; --card:rgba(18,20,28,0.7); --muted:#9aa0aa; --accent:#8b7dff;
+      --text:#e5e7eb; --border:#2a2e3a; --subtle:#202431;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:linear-gradient(180deg,var(--bg),#ffffff); color:var(--text); display:flex; align-items:center; justify-content:center; padding:24px;
+    }
+    .app{
+      width:100%; max-width:var(--maxwidth); background:transparent;
+      display:grid; grid-template-columns:1fr; gap:var(--gap);
+    }
+    .shell{background:var(--card); backdrop-filter:blur(14px) saturate(140%); -webkit-backdrop-filter:blur(14px) saturate(140%); border-radius:18px; box-shadow:var(--shadow); overflow:hidden; display:flex; flex-direction:column; min-height:560px; border:1px solid var(--border)}
+
+    /* toolbar: top on desktop, bottom on mobile */
+    .toolbar{display:flex; gap:8px; padding:12px; align-items:center; justify-content:center; background:transparent}
+    .toolbar .tab-btn{background:transparent;border:1px solid var(--border);padding:8px 12px;border-radius:12px;cursor:pointer;font-weight:600;color:var(--text)}
+    .toolbar .tab-btn.active{background:linear-gradient(90deg,var(--accent),#a29bfe); color:white; box-shadow:0 6px 18px rgba(108,92,231,0.18); border-color:transparent}
+    .toolbar .spacer{flex:1}
+    .toolbar .theme-toggle{min-width:44px; height:36px; display:inline-flex; align-items:center; justify-content:center}
+
+    .content{display:grid; grid-template-columns:1fr; gap:16px; padding:18px}
+
+    .editor{display:flex; flex-direction:column; gap:10px}
+    .field{display:flex; flex-direction:column; gap:6px}
+    input.title{padding:12px 14px; border-radius:12px; border:1px solid var(--border); font-size:16px; background:transparent; color:var(--text)}
+    .rte-box{display:flex; flex-direction:column; gap:8px}
+    .rte-toolbar{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+    .rte-area{min-height:260px; resize:vertical; padding:14px; border-radius:12px; border:1px solid var(--border); font-size:15px; line-height:1.5; background:transparent; color:var(--text)}
+    .rte-area img{max-width:100%; height:auto; border-radius:10px}
+    .row{display:flex; gap:8px; align-items:center}
+    .btn{padding:10px 14px;border-radius:12px;border:none;cursor:pointer;font-weight:700}
+    .btn.save{background:var(--accent); color:white}
+    .btn.clear{background:rgba(240,242,255,0.6); color:var(--muted); border:1px solid var(--border); backdrop-filter:blur(10px)}
+
+    .notes-list{display:flex; flex-direction:column; gap:10px}
+    .note-card{background:linear-gradient(180deg,rgba(255,255,255,0.7),rgba(251,251,255,0.5)); border-radius:12px; padding:12px; border:1px solid var(--subtle); cursor:pointer; display:flex; justify-content:space-between; align-items:center; backdrop-filter:blur(10px)}
+    .note-meta{display:flex; flex-direction:column}
+    .note-title{font-weight:700}
+    .note-time{color:var(--muted); font-size:13px}
+    .note-actions{display:flex; gap:8px; align-items:center}
+    .icon-btn{background:transparent;border:none; padding:8px 10px;border-radius:12px; cursor:pointer; color:var(--text)}
+    .icon-glass{background:rgba(255,255,255,0.12); border:1px solid var(--border); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px)}
+    .icon-glass:hover{background:rgba(255,255,255,0.2)}
+    [data-theme="dark"] .note-card{background:linear-gradient(180deg,rgba(26,28,38,0.7),rgba(18,20,28,0.7))}
+    .icon-btn ion-icon{font-size:18px; vertical-align:middle}
+
+    .empty{padding:24px; text-align:center; color:var(--muted)}
+
+    /* responsive toolbar placement */
+    .shell{position:relative}
+    .toolbar-wrapper{position:relative}
+    @media (min-width:768px){
+      .shell{min-height:520px}
+      .toolbar-wrapper{position:sticky; top:0; background:transparent; z-index:2}
+      .toolbar{justify-content:flex-start;padding:18px 18px}
+    }
+    @media (max-width:767px){
+      .toolbar-wrapper{position:sticky; bottom:0; background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.95)); padding:10px}
+      .toolbar{justify-content:center}
+      body{padding:12px}
+    }
+
+    /* small screens tweak */
+    @media (max-width:420px){
+      input.title{font-size:15px}
+      .btn{padding:8px 10px}
+    }
+
+    footer.hint{padding:12px 18px; font-size:13px; color:var(--muted); display:flex; justify-content:space-between; align-items:center}
+    .search{padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:transparent; color:var(--text)}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="shell" id="appShell">
+      <div class="toolbar-wrapper">
+        <div class="toolbar" role="toolbar">
+          <button id="tab-edit" class="tab-btn active" aria-pressed="true"><ion-icon name="pencil-outline"></ion-icon> Ghi nhanh</button>
+          <button id="tab-list" class="tab-btn" aria-pressed="false"><ion-icon name="folder-outline"></ion-icon> Ghi đã lưu</button>
+          <div class="spacer"></div>
+          <button id="themeToggle" class="icon-btn icon-glass theme-toggle" title="Chế độ sáng/tối"><ion-icon id="themeIcon" name="moon-outline"></ion-icon></button>
+        </div>
+      </div>
+
+      <div class="content">
+        <!-- Editor view -->
+        <div id="view-editor" class="editor" aria-hidden="false">
+          <div class="field">
+            <input id="note-title" class="title" placeholder="Tiêu đề (ví dụ: Ý tưởng)" />
+          </div>
+          <div class="field rte-box">
+            <div class="rte-toolbar" aria-label="Định dạng">
+              <button id="btnBold" class="icon-btn icon-glass" type="button" title="In đậm (Ctrl/Cmd+B)"><ion-icon name="text-outline"></ion-icon><span style="font-weight:700;margin-left:4px">B</span></button>
+              <button id="btnItalic" class="icon-btn icon-glass" type="button" title="In nghiêng (Ctrl/Cmd+I)"><ion-icon name="text-outline"></ion-icon><span style="font-style:italic;margin-left:4px">I</span></button>
+              <button id="btnUnderline" class="icon-btn icon-glass" type="button" title="Gạch chân (Ctrl/Cmd+U)"><ion-icon name="text-outline"></ion-icon><span style="text-decoration:underline;margin-left:4px">U</span></button>
+              <input id="imgInput" type="file" accept="image/*" style="display:none" />
+              <button id="btnImage" class="icon-btn icon-glass" type="button" title="Chèn hình ảnh"><ion-icon name="image-outline"></ion-icon></button>
+            </div>
+            <div id="note-body" class="rte-area" contenteditable="true" aria-multiline="true" role="textbox" placeholder="Ghi vào đây... (Ctrl/Cmd+S để lưu nhanh)"></div>
+          </div>
+          <div class="row">
+            <button id="saveBtn" class="btn save">LƯU</button>
+            <button id="clearBtn" class="btn clear">Làm mới</button>
+            <div style="flex:1"></div>
+            <div class="note-count" id="noteCount"></div>
+          </div>
+        </div>
+
+        <!-- List view -->
+        <div id="view-list" class="notes-list" style="display:none;" aria-hidden="true">
+          <div style="display:flex; gap:8px; align-items:center">
+            <input id="searchInput" class="search" placeholder="Tìm kiếm tiêu đề hoặc nội dung" />
+            <button id="clearAll" class="btn clear">Xóa hết</button>
+          </div>
+          <div id="notesContainer"></div>
+          <div id="emptyMsg" class="empty" style="display:none">Chưa có ghi chú nào. Viết nhanh 1 cái rồi lưu nhé 💡</div>
+        </div>
+      </div>
+
+      <footer class="hint">
+        <div>✔ Dữ liệu lưu trên trình duyệt (localStorage)</div>
+        <div style="font-style:italic">Nhẹ — đơn giản — sang</div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Ionicons CDN for iOS-like icons -->
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+  <script>
+    // Simple localStorage-backed notes app
+    const KEY = 'simple_notes_v1';
+    let notes = [];
+    let editingId = null;
+
+    // DOM
+    const tabEdit = document.getElementById('tab-edit');
+    const tabList = document.getElementById('tab-list');
+    const viewEditor = document.getElementById('view-editor');
+    const viewList = document.getElementById('view-list');
+    const titleInput = document.getElementById('note-title');
+    const bodyInput = document.getElementById('note-body');
+    const saveBtn = document.getElementById('saveBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const notesContainer = document.getElementById('notesContainer');
+    const emptyMsg = document.getElementById('emptyMsg');
+    const noteCount = document.getElementById('noteCount');
+    const searchInput = document.getElementById('searchInput');
+    const clearAll = document.getElementById('clearAll');
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const btnBold = document.getElementById('btnBold');
+    const btnItalic = document.getElementById('btnItalic');
+    const btnUnderline = document.getElementById('btnUnderline');
+    const btnImage = document.getElementById('btnImage');
+    const imgInput = document.getElementById('imgInput');
+
+    // init
+    function load(){
+      try{ notes = JSON.parse(localStorage.getItem(KEY) || '[]'); }
+      catch(e){ notes = []; }
+      renderNotesList();
+      updateCount();
+    }
+
+    function saveToStorage(){ localStorage.setItem(KEY, JSON.stringify(notes)); }
+
+    function makeId(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+    function saveNote(){
+      const title = titleInput.value.trim();
+      const body = (bodyInput.innerHTML || '').trim();
+      if(!title && !body){ alert('Ghi gì đó trước khi lưu nhé 🙂'); return }
+      if(editingId){
+        const i = notes.findIndex(n => n.id === editingId);
+        if(i>-1){ notes[i].title = title; notes[i].body = body; notes[i].updated = Date.now(); }
+      } else {
+        notes.unshift({ id: makeId(), title, body, created: Date.now(), updated: Date.now(), pinned:false });
+      }
+      saveToStorage();
+      renderNotesList();
+      updateCount();
+      // reset editor
+      titleInput.value = '';
+      bodyInput.innerHTML = '';
+      editingId = null;
+      tabList.click(); // show saved notes after save
+    }
+
+    function renderNotesList(filter=''){
+      notesContainer.innerHTML = '';
+      const f = filter.toLowerCase().trim();
+      const list = notes
+        .filter(n => {
+          if(!f) return true;
+          return (n.title||'').toLowerCase().includes(f) || (n.body||'').toLowerCase().includes(f);
+        })
+        .sort((a,b)=> (b.pinned===true) - (a.pinned===true) || (b.updated||0) - (a.updated||0));
+      if(list.length===0){ emptyMsg.style.display='block'; } else { emptyMsg.style.display='none'; }
+      list.forEach(n => {
+        const card = document.createElement('div'); card.className='note-card';
+        const meta = document.createElement('div'); meta.className='note-meta';
+        const t = document.createElement('div'); t.className='note-title'; t.textContent = n.title || '(Không tiêu đề)';
+        const s = document.createElement('div'); s.className='note-time'; s.textContent = new Date(n.updated || n.created).toLocaleString();
+        meta.appendChild(t); meta.appendChild(s);
+        const actions = document.createElement('div'); actions.className='note-actions';
+        const pinBtn = document.createElement('button'); pinBtn.className='icon-btn icon-glass'; pinBtn.title='Ghim / Bỏ ghim'; pinBtn.innerHTML = n.pinned ? '<ion-icon name="pin"></ion-icon>' : '<ion-icon name="pin-outline"></ion-icon>';
+        pinBtn.onclick = (e)=>{ e.stopPropagation(); togglePin(n.id); };
+        const openBtn = document.createElement('button'); openBtn.className='icon-btn icon-glass'; openBtn.title='Mở để chỉnh sửa'; openBtn.innerHTML='<ion-icon name="create-outline"></ion-icon>';
+        openBtn.onclick = (e)=>{ e.stopPropagation(); openNote(n.id); }
+        const delBtn = document.createElement('button'); delBtn.className='icon-btn icon-glass'; delBtn.title='Xóa'; delBtn.innerHTML='<ion-icon name="trash-outline"></ion-icon>';
+        delBtn.onclick = (e)=>{ e.stopPropagation(); if(confirm('Xóa ghi chú này?')){ deleteNote(n.id); } }
+        actions.appendChild(pinBtn); actions.appendChild(openBtn); actions.appendChild(delBtn);
+        card.appendChild(meta); card.appendChild(actions);
+        card.onclick = ()=>{ openNote(n.id); }
+        notesContainer.appendChild(card);
+      });
+    }
+
+    function openNote(id){
+      const n = notes.find(x=>x.id===id); if(!n) return;
+      editingId = id;
+      titleInput.value = n.title; bodyInput.innerHTML = n.body;
+      showEditor();
+    }
+
+    function deleteNote(id){ notes = notes.filter(n=>n.id!==id); saveToStorage(); renderNotesList(); updateCount(); }
+
+    function clearEditor(){ editingId=null; titleInput.value=''; bodyInput.innerHTML=''; }
+
+    function updateCount(){ noteCount.textContent = notes.length ? `${notes.length} ghi chú` : 'Chưa có ghi chú' }
+
+    // tabs
+    tabEdit.addEventListener('click', ()=>{ tabEdit.classList.add('active'); tabEdit.setAttribute('aria-pressed','true'); tabList.classList.remove('active'); tabList.setAttribute('aria-pressed','false'); showEditor(); });
+    tabList.addEventListener('click', ()=>{ tabList.classList.add('active'); tabList.setAttribute('aria-pressed','true'); tabEdit.classList.remove('active'); tabEdit.setAttribute('aria-pressed','false'); showList(); });
+
+    function showEditor(){ viewEditor.style.display='flex'; viewEditor.setAttribute('aria-hidden','false'); viewList.style.display='none'; viewList.setAttribute('aria-hidden','true'); titleInput.focus(); }
+    function showList(){ viewEditor.style.display='none'; viewEditor.setAttribute('aria-hidden','true'); viewList.style.display='flex'; viewList.setAttribute('aria-hidden','false'); searchInput.focus(); }
+
+    // events
+    saveBtn.addEventListener('click', saveNote);
+    clearBtn.addEventListener('click', ()=>{ if(confirm('Làm mới sẽ bỏ nội dung hiện tại?')) clearEditor(); });
+    searchInput.addEventListener('input', ()=>{ renderNotesList(searchInput.value); });
+    clearAll.addEventListener('click', ()=>{ if(confirm('Xóa hết tất cả ghi chú?')){ notes=[]; saveToStorage(); renderNotesList(); updateCount(); } });
+
+    // theme toggle with persistence
+    const THEME_KEY = 'simple_notes_theme';
+    function applyTheme(theme){
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem(THEME_KEY, theme);
+      if(themeIcon){ themeIcon.setAttribute('name', theme==='dark' ? 'sunny-outline' : 'moon-outline'); }
+    }
+    const savedTheme = localStorage.getItem(THEME_KEY) || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    applyTheme(savedTheme);
+    if(themeToggle){ themeToggle.addEventListener('click', ()=>{
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+    }); }
+
+    // rich text commands
+    function exec(cmd){ document.execCommand(cmd, false, null); bodyInput.focus(); }
+    if(btnBold) btnBold.addEventListener('click', ()=> exec('bold'));
+    if(btnItalic) btnItalic.addEventListener('click', ()=> exec('italic'));
+    if(btnUnderline) btnUnderline.addEventListener('click', ()=> exec('underline'));
+    if(btnImage) btnImage.addEventListener('click', ()=> imgInput && imgInput.click());
+    if(imgInput) imgInput.addEventListener('change', (e)=>{
+      const file = e.target.files && e.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        const url = reader.result;
+        const img = document.createElement('img');
+        img.src = url;
+        const sel = window.getSelection();
+        if(sel && sel.rangeCount){
+          const range = sel.getRangeAt(0);
+          range.deleteContents();
+          range.insertNode(img);
+        } else {
+          bodyInput.appendChild(img);
+        }
+      };
+      reader.readAsDataURL(file);
+      e.target.value='';
+    });
+
+    // pin feature
+    function togglePin(id){
+      const i = notes.findIndex(n=>n.id===id);
+      if(i>-1){ notes[i].pinned = !notes[i].pinned; notes[i].updated = Date.now(); saveToStorage(); renderNotesList(searchInput.value||''); }
+    }
+
+    // keyboard shortcut save
+    document.addEventListener('keydown', (e)=>{
+      if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s'){
+        e.preventDefault(); saveNote();
+      }
+    });
+
+    // initialize
+    load();
+
+    // Accessibility: if empty and on mobile, focus editor by default
+    window.matchMedia('(max-width:767px)').matches ? showEditor() : showEditor();
+  </script>
+</body>
+</html>
