@@ -1,13 +1,21 @@
 <!doctype html>
-<html lang="vi">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Note nhanh — Simple</title>
+  <title>Text2 Note</title>
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="manifest" href="/site.webmanifest">
+  <meta name="description" content="text2 - note: A simple and elegant note-taking app by text2. Access it at https://note.text2.click.">
+  <meta name="keywords" content="text2, note, text2 - note, note-taking app, text2 brand">
+  <meta property="og:title" content="text2 - note">
+  <meta property="og:description" content="A simple and elegant note-taking app by text2. Access it at https://note.text2.click.">
+  <meta property="og:url" content="https://note.text2.click">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="/android-chrome-512x512.png">
+  <link rel="canonical" href="https://note.text2.click">
   <style>
     :root{
       --bg:#f6f7fb; --card:#ffffff; --muted:#6b7280; --accent:#6c5ce7;
@@ -100,10 +108,10 @@
     <div class="shell" id="appShell">
       <div class="toolbar-wrapper">
         <div class="toolbar" role="toolbar">
-          <button id="tab-edit" class="tab-btn active" aria-pressed="true"><ion-icon name="pencil-outline"></ion-icon> Ghi nhanh</button>
-          <button id="tab-list" class="tab-btn" aria-pressed="false"><ion-icon name="folder-outline"></ion-icon> Ghi đã lưu</button>
+          <button id="tab-edit" class="tab-btn active" aria-pressed="true"><ion-icon name="pencil-outline"></ion-icon> Quick Note</button>
+          <button id="tab-list" class="tab-btn" aria-pressed="false"><ion-icon name="folder-outline"></ion-icon> Saved Notes</button>
           <div class="spacer"></div>
-          <button id="themeToggle" class="icon-btn icon-glass theme-toggle" title="Chế độ sáng/tối"><ion-icon id="themeIcon" name="moon-outline"></ion-icon></button>
+          <button id="themeToggle" class="icon-btn icon-glass theme-toggle" title="Light/Dark Mode"><ion-icon id="themeIcon" name="moon-outline"></ion-icon></button>
         </div>
       </div>
 
@@ -111,21 +119,21 @@
         <!-- Editor view -->
         <div id="view-editor" class="editor" aria-hidden="false">
           <div class="field">
-            <input id="note-title" class="title" placeholder="Tiêu đề (ví dụ: Ý tưởng)" />
+            <input id="note-title" class="title" placeholder="Title (e.g., Idea)" />
           </div>
           <div class="field rte-box">
-            <div class="rte-toolbar" aria-label="Định dạng">
-              <button id="btnBold" class="icon-btn icon-glass" type="button" title="In đậm (Ctrl/Cmd+B)"><ion-icon name="text-outline"></ion-icon><span style="font-weight:700;margin-left:4px">B</span></button>
-              <button id="btnItalic" class="icon-btn icon-glass" type="button" title="In nghiêng (Ctrl/Cmd+I)"><ion-icon name="text-outline"></ion-icon><span style="font-style:italic;margin-left:4px">I</span></button>
-              <button id="btnUnderline" class="icon-btn icon-glass" type="button" title="Gạch chân (Ctrl/Cmd+U)"><ion-icon name="text-outline"></ion-icon><span style="text-decoration:underline;margin-left:4px">U</span></button>
+            <div class="rte-toolbar" aria-label="Formatting">
+              <button id="btnBold" class="icon-btn icon-glass" type="button" title="Bold (Ctrl/Cmd+B)"><ion-icon name="text-outline"></ion-icon><span style="font-weight:700;margin-left:4px">B</span></button>
+              <button id="btnItalic" class="icon-btn icon-glass" type="button" title="Italic (Ctrl/Cmd+I)"><ion-icon name="text-outline"></ion-icon><span style="font-style:italic;margin-left:4px">I</span></button>
+              <button id="btnUnderline" class="icon-btn icon-glass" type="button" title="Underline (Ctrl/Cmd+U)"><ion-icon name="text-outline"></ion-icon><span style="text-decoration:underline;margin-left:4px">U</span></button>
               <input id="imgInput" type="file" accept="image/*" style="display:none" />
-              <button id="btnImage" class="icon-btn icon-glass" type="button" title="Chèn hình ảnh"><ion-icon name="image-outline"></ion-icon></button>
+              <button id="btnImage" class="icon-btn icon-glass" type="button" title="Insert Image"><ion-icon name="image-outline"></ion-icon></button>
             </div>
-            <div id="note-body" class="rte-area" contenteditable="true" aria-multiline="true" role="textbox" placeholder="Ghi vào đây... (Ctrl/Cmd+S để lưu nhanh)"></div>
+            <div id="note-body" class="rte-area" contenteditable="true" aria-multiline="true" role="textbox" placeholder="Write here... (Ctrl/Cmd+S to save quickly)"></div>
           </div>
           <div class="row">
-            <button id="saveBtn" class="btn save">LƯU</button>
-            <button id="clearBtn" class="btn clear">Làm mới</button>
+            <button id="saveBtn" class="btn save">SAVE</button>
+            <button id="clearBtn" class="btn clear">Clear</button>
             <div style="flex:1"></div>
             <div class="note-count" id="noteCount"></div>
           </div>
@@ -134,17 +142,17 @@
         <!-- List view -->
         <div id="view-list" class="notes-list" style="display:none;" aria-hidden="true">
           <div style="display:flex; gap:8px; align-items:center">
-            <input id="searchInput" class="search" placeholder="Tìm kiếm tiêu đề hoặc nội dung" />
-            <button id="clearAll" class="btn clear">Xóa hết</button>
+            <input id="searchInput" class="search" placeholder="Search title or content" />
+            <button id="clearAll" class="btn clear">Clear All</button>
           </div>
           <div id="notesContainer"></div>
-          <div id="emptyMsg" class="empty" style="display:none">Chưa có ghi chú nào. Viết nhanh 1 cái rồi lưu nhé 💡</div>
+          <div id="emptyMsg" class="empty" style="display:none">No notes yet. Write one quickly and save 💡</div>
         </div>
       </div>
 
       <footer class="hint">
-        <div>✔ Dữ liệu lưu trên trình duyệt (localStorage)</div>
-        <div style="font-style:italic">Nhẹ — đơn giản — sang</div>
+        <div>✔ Data saved in browser (localStorage)</div>
+        <div style="font-style:italic">Light — Simple — Elegant</div>
       </footer>
     </div>
   </div>
@@ -196,7 +204,7 @@
     function saveNote(){
       const title = titleInput.value.trim();
       const body = (bodyInput.innerHTML || '').trim();
-      if(!title && !body){ alert('Ghi gì đó trước khi lưu nhé 🙂'); return }
+      if(!title && !body){ alert('Please write something before saving 🙂'); return }
       if(editingId){
         const i = notes.findIndex(n => n.id === editingId);
         if(i>-1){ notes[i].title = title; notes[i].body = body; notes[i].updated = Date.now(); }
@@ -226,16 +234,16 @@
       list.forEach(n => {
         const card = document.createElement('div'); card.className='note-card';
         const meta = document.createElement('div'); meta.className='note-meta';
-        const t = document.createElement('div'); t.className='note-title'; t.textContent = n.title || '(Không tiêu đề)';
+        const t = document.createElement('div'); t.className='note-title'; t.textContent = n.title || '(No title)';
         const s = document.createElement('div'); s.className='note-time'; s.textContent = new Date(n.updated || n.created).toLocaleString();
         meta.appendChild(t); meta.appendChild(s);
         const actions = document.createElement('div'); actions.className='note-actions';
-        const pinBtn = document.createElement('button'); pinBtn.className='icon-btn icon-glass'; pinBtn.title='Ghim / Bỏ ghim'; pinBtn.innerHTML = n.pinned ? '<ion-icon name="pin"></ion-icon>' : '<ion-icon name="pin-outline"></ion-icon>';
+        const pinBtn = document.createElement('button'); pinBtn.className='icon-btn icon-glass'; pinBtn.title='Pin / Unpin'; pinBtn.innerHTML = n.pinned ? '<ion-icon name="pin"></ion-icon>' : '<ion-icon name="pin-outline"></ion-icon>';
         pinBtn.onclick = (e)=>{ e.stopPropagation(); togglePin(n.id); };
-        const openBtn = document.createElement('button'); openBtn.className='icon-btn icon-glass'; openBtn.title='Mở để chỉnh sửa'; openBtn.innerHTML='<ion-icon name="create-outline"></ion-icon>';
+        const openBtn = document.createElement('button'); openBtn.className='icon-btn icon-glass'; openBtn.title='Open to edit'; openBtn.innerHTML='<ion-icon name="create-outline"></ion-icon>';
         openBtn.onclick = (e)=>{ e.stopPropagation(); openNote(n.id); }
-        const delBtn = document.createElement('button'); delBtn.className='icon-btn icon-glass'; delBtn.title='Xóa'; delBtn.innerHTML='<ion-icon name="trash-outline"></ion-icon>';
-        delBtn.onclick = (e)=>{ e.stopPropagation(); if(confirm('Xóa ghi chú này?')){ deleteNote(n.id); } }
+        const delBtn = document.createElement('button'); delBtn.className='icon-btn icon-glass'; delBtn.title='Delete'; delBtn.innerHTML='<ion-icon name="trash-outline"></ion-icon>';
+        delBtn.onclick = (e)=>{ e.stopPropagation(); if(confirm('Delete this note?')){ deleteNote(n.id); } }
         actions.appendChild(pinBtn); actions.appendChild(openBtn); actions.appendChild(delBtn);
         card.appendChild(meta); card.appendChild(actions);
         card.onclick = ()=>{ openNote(n.id); }
@@ -254,7 +262,7 @@
 
     function clearEditor(){ editingId=null; titleInput.value=''; bodyInput.innerHTML=''; }
 
-    function updateCount(){ noteCount.textContent = notes.length ? `${notes.length} ghi chú` : 'Chưa có ghi chú' }
+    function updateCount(){ noteCount.textContent = notes.length ? `${notes.length} notes` : 'No notes yet'; }
 
     // tabs
     tabEdit.addEventListener('click', ()=>{ tabEdit.classList.add('active'); tabEdit.setAttribute('aria-pressed','true'); tabList.classList.remove('active'); tabList.setAttribute('aria-pressed','false'); showEditor(); });
@@ -265,9 +273,9 @@
 
     // events
     saveBtn.addEventListener('click', saveNote);
-    clearBtn.addEventListener('click', ()=>{ if(confirm('Làm mới sẽ bỏ nội dung hiện tại?')) clearEditor(); });
+    clearBtn.addEventListener('click', ()=>{ if(confirm('Clear will discard current content?')) clearEditor(); });
     searchInput.addEventListener('input', ()=>{ renderNotesList(searchInput.value); });
-    clearAll.addEventListener('click', ()=>{ if(confirm('Xóa hết tất cả ghi chú?')){ notes=[]; saveToStorage(); renderNotesList(); updateCount(); } });
+    clearAll.addEventListener('click', ()=>{ if(confirm('Clear all notes?')){ notes=[]; saveToStorage(); renderNotesList(); updateCount(); } });
 
     // theme toggle with persistence
     const THEME_KEY = 'simple_notes_theme';
