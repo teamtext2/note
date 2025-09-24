@@ -52,7 +52,8 @@
     /* toolbar: top on desktop, bottom on mobile */
     .toolbar{display:flex; gap:8px; padding:12px; align-items:center; justify-content:center; background:transparent}
     .toolbar .tab-btn{background:transparent;border:1px solid var(--border);padding:8px 12px;border-radius:12px;cursor:pointer;font-weight:600;color:var(--text)}
-    .toolbar .tab-btn.active{background:linear-gradient(90deg,var(--accent),#a29bfe); color:white; box-shadow:0 6px 18px rgba(108,92,231,0.18); border-color:transparent}
+    .toolbar .tab-btn.active{background:rgba(255,255,255,0.15); color:var(--text); box-shadow:0 4px 12px rgba(108,92,231,0.12); border:1px solid var(--accent); backdrop-filter:blur(10px)}
+    [data-theme="dark"] .toolbar .tab-btn.active{background:rgba(255,255,255,0.1); color:var(--text); border:1px solid var(--accent)}
     .toolbar .spacer{flex:1}
     .toolbar .theme-toggle{min-width:44px; height:36px; display:inline-flex; align-items:center; justify-content:center}
 
@@ -67,9 +68,10 @@
     .rte-area img{max-width:100%; height:auto; border-radius:10px}
     .row{display:flex; gap:8px; align-items:center}
     .btn{padding:10px 14px;border-radius:12px;border:none;cursor:pointer;font-weight:700}
-    .btn.save{background:var(--accent); color:white}
+    .btn.save{background:rgba(255,255,255,0.12); color:var(--text); border:1px solid var(--border); backdrop-filter:blur(10px)}
     .btn.clear{background:rgba(240,242,255,0.6); color:var(--muted); border:1px solid var(--border); backdrop-filter:blur(10px)}
     [data-theme="dark"] .btn.clear{background:rgba(255,255,255,0.06); color:var(--muted); border:1px solid var(--border)}
+    [data-theme="dark"] .btn.save{background:rgba(255,255,255,0.08); color:var(--text); border:1px solid var(--border)}
 
     .notes-list{display:flex; flex-direction:column; gap:10px}
     .note-card{background:linear-gradient(180deg,rgba(255,255,255,0.7),rgba(251,251,255,0.5)); border-radius:12px; padding:12px; border:1px solid var(--subtle); cursor:pointer; display:flex; justify-content:space-between; align-items:center; backdrop-filter:blur(10px)}
@@ -110,6 +112,25 @@
 
     footer.hint{padding:12px 18px; font-size:13px; color:var(--muted); display:flex; justify-content:space-between; align-items:center}
     .search{padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:transparent; color:var(--text)}
+
+    /* Export dropdown styling */
+    .export-dropdown{position:relative; display:inline-block}
+    .export-menu{
+      position:absolute; top:100%; left:0; min-width:180px; 
+      background:var(--card); border:1px solid var(--border); border-radius:12px; 
+      box-shadow:var(--shadow); backdrop-filter:blur(14px) saturate(140%); 
+      -webkit-backdrop-filter:blur(14px) saturate(140%); 
+      display:none; z-index:10; overflow:hidden; margin-top:4px;
+    }
+    .export-menu.show{display:block}
+    .export-option{
+      width:100%; padding:12px 16px; border:none; background:transparent; 
+      color:var(--text); text-align:left; cursor:pointer; font-size:14px; 
+      display:flex; align-items:center; gap:8px; font-weight:500;
+    }
+    .export-option:hover{background:var(--subtle)}
+    .export-option ion-icon{font-size:16px}
+    [data-theme="dark"] .export-option:hover{background:rgba(255,255,255,0.08)}
   </style>
 </head>
 <body>
@@ -119,6 +140,13 @@
         <div class="toolbar" role="toolbar">
           <button id="tab-edit" class="tab-btn active" aria-pressed="true"><ion-icon name="pencil-outline"></ion-icon> Quick Note</button>
           <button id="tab-list" class="tab-btn" aria-pressed="false"><ion-icon name="folder-outline"></ion-icon> Saved Notes</button>
+          <div class="export-dropdown">
+            <button id="export-btn" class="tab-btn" title="Export Notes"><ion-icon name="download-outline"></ion-icon> Export</button>
+            <div class="export-menu" id="export-menu">
+              <button id="export-docx" class="export-option"><ion-icon name="document-text-outline"></ion-icon> Export to DOCX</button>
+              <button id="export-pdf" class="export-option"><ion-icon name="document-outline"></ion-icon> Export to PDF</button>
+            </div>
+          </div>
           <div class="spacer"></div>
           <button id="themeToggle" class="icon-btn icon-glass theme-toggle" title="Light/Dark Mode"><ion-icon id="themeIcon" name="moon-outline"></ion-icon></button>
         </div>
@@ -128,13 +156,13 @@
         <!-- Editor view -->
         <div id="view-editor" class="editor" aria-hidden="false">
           <div class="field">
-            <input id="note-title" class="title" placeholder="Title (e.g., Idea)" />
+            <input id="note-title" class="title" placeholder="Title" />
           </div>
           <div class="field rte-box">
             <div class="rte-toolbar" aria-label="Formatting">
-              <button id="btnBold" class="icon-btn icon-glass" type="button" title="Bold (Ctrl/Cmd+B)"><ion-icon name="text-outline"></ion-icon><span style="font-weight:700;margin-left:4px">B</span></button>
-              <button id="btnItalic" class="icon-btn icon-glass" type="button" title="Italic (Ctrl/Cmd+I)"><ion-icon name="text-outline"></ion-icon><span style="font-style:italic;margin-left:4px">I</span></button>
-              <button id="btnUnderline" class="icon-btn icon-glass" type="button" title="Underline (Ctrl/Cmd+U)"><ion-icon name="text-outline"></ion-icon><span style="text-decoration:underline;margin-left:4px">U</span></button>
+              <button id="btnBold" class="icon-btn icon-glass" type="button" title="Bold (Ctrl/Cmd+B)"><span style="font-weight:700;">B</span></button>
+              <button id="btnItalic" class="icon-btn icon-glass" type="button" title="Italic (Ctrl/Cmd+I)"><span style="font-style:italic;">I</span></button>
+              <button id="btnUnderline" class="icon-btn icon-glass" type="button" title="Underline (Ctrl/Cmd+U)"><span style="text-decoration:underline;">U</span></button>
               <input id="imgInput" type="file" accept="image/*" style="display:none" />
               <button id="btnImage" class="icon-btn icon-glass" type="button" title="Insert Image"><ion-icon name="image-outline"></ion-icon></button>
             </div>
@@ -169,6 +197,10 @@
   <!-- Ionicons CDN for iOS-like icons -->
   <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  <!-- HTML to DOCX conversion library -->
+  <script src="https://unpkg.com/html-docx-js/dist/html-docx.js"></script>
+  <!-- HTML to PDF conversion library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <script>
     // Simple localStorage-backed notes app
@@ -197,6 +229,10 @@
     const btnUnderline = document.getElementById('btnUnderline');
     const btnImage = document.getElementById('btnImage');
     const imgInput = document.getElementById('imgInput');
+    const exportBtn = document.getElementById('export-btn');
+    const exportMenu = document.getElementById('export-menu');
+    const exportDocx = document.getElementById('export-docx');
+    const exportPdf = document.getElementById('export-pdf');
 
     // init
     function load(){
@@ -342,6 +378,107 @@
 
     // initialize
     load();
+
+    // Export functionality
+    if(exportBtn && exportMenu) {
+      exportBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        exportMenu.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!exportBtn.contains(e.target) && !exportMenu.contains(e.target)) {
+          exportMenu.classList.remove('show');
+        }
+      });
+    }
+
+    // Export options
+    if(exportDocx) {
+      exportDocx.addEventListener('click', () => {
+        exportMenu.classList.remove('show');
+        exportToDocx();
+      });
+    }
+
+    if(exportPdf) {
+      exportPdf.addEventListener('click', () => {
+        exportMenu.classList.remove('show');
+        exportToPdf();
+      });
+    }
+
+    // Export functions (placeholder implementations)
+    function exportToDocx() {
+      const title = titleInput.value.trim();
+      const body = (bodyInput.innerHTML || '').trim();
+      
+      if (!title && !body) {
+        alert('No content to export. Please write something first.');
+        return;
+      }
+      
+      // Create HTML content for DOCX export
+      const htmlContent = `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 20px; color: #333;">${title || 'Untitled'}</h2>
+          <div style="line-height: 1.6; font-size: 14px;">
+            ${body}
+          </div>
+        </div>
+      `;
+      
+      try {
+        const converted = window.htmlDocx.asBlob(htmlContent);
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(converted);
+        link.download = `${title || 'untitled'}-${new Date().toISOString().slice(0,10)}.docx`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+      } catch (error) {
+        console.error('Error exporting DOCX:', error);
+        alert('Error exporting to DOCX. Please try again.');
+      }
+    }
+
+    function exportToPdf() {
+      const title = titleInput.value.trim();
+      const body = (bodyInput.innerHTML || '').trim();
+      
+      if (!title && !body) {
+        alert('No content to export. Please write something first.');
+        return;
+      }
+      
+      // Create HTML content for PDF export with forced white background and black text
+      const content = `
+        <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background-color: white; color: black;">
+          <div style="font-size: 24px; font-weight: bold; margin-bottom: 20px; color: #333; background-color: white;">${title || 'Untitled'}</div>
+          <div style="line-height: 1.6; font-size: 14px; color: black; background-color: white;">${body}</div>
+        </div>
+      `;
+      
+      // Use html2pdf to generate and download PDF with white background
+      const filename = `${title || 'untitled'}-${new Date().toISOString().slice(0,10)}.pdf`;
+      const options = {
+        margin: 1,
+        filename: filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+          scale: 2,
+          backgroundColor: '#ffffff', // Force white background
+          useCORS: true
+        },
+        jsPDF: { 
+          unit: 'in', 
+          format: 'letter', 
+          orientation: 'portrait' 
+        }
+      };
+      
+      html2pdf().set(options).from(content).save();
+    }
 
     // Accessibility: if empty and on mobile, focus editor by default
     window.matchMedia('(max-width:767px)').matches ? showEditor() : showEditor();
