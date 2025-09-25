@@ -138,6 +138,8 @@
     <div class="shell" id="appShell">
       <div class="toolbar-wrapper">
         <div class="toolbar" role="toolbar">
+          <button id="open-file-btn" class="tab-btn" title="Open File"><ion-icon name="folder-open-outline"></ion-icon> Open File</button>
+          <input id="file-input" type="file" accept=".docx,.doc" style="display:none" />
           <button id="tab-edit" class="tab-btn active" aria-pressed="true"><ion-icon name="pencil-outline"></ion-icon> Quick Note</button>
           <button id="tab-list" class="tab-btn" aria-pressed="false"><ion-icon name="folder-outline"></ion-icon> Saved Notes</button>
           <div class="export-dropdown">
@@ -201,6 +203,8 @@
   <script src="https://unpkg.com/html-docx-js/dist/html-docx.js"></script>
   <!-- HTML to PDF conversion library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- Mammoth library for DOCX parsing -->
+  <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
 
   <script>
     // Simple localStorage-backed notes app
@@ -233,6 +237,8 @@
     const exportMenu = document.getElementById('export-menu');
     const exportDocx = document.getElementById('export-docx');
     const exportPdf = document.getElementById('export-pdf');
+    const openFileBtn = document.getElementById('open-file-btn');
+    const fileInput = document.getElementById('file-input');
 
     // init
     function load(){
@@ -478,6 +484,37 @@
       };
       
       html2pdf().set(options).from(content).save();
+    }
+
+    // Open File functionality
+    if(openFileBtn && fileInput) {
+      openFileBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        fileInput.click();
+      });
+
+      fileInput.addEventListener('change', function(event) {
+        const file = this.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const arrayBuffer = event.target.result;
+          mammoth.convertToHtml({arrayBuffer: arrayBuffer})
+            .then(function(result) {
+              bodyInput.innerHTML = result.value; // đưa nội dung vào editor
+              // Set filename (without extension) as title
+              const fileName = file.name.replace(/\.(docx|doc)$/i, "");
+              titleInput.value = fileName;
+              showEditor(); // Switch to editor view
+              alert('File loaded successfully!');
+            })
+            .catch(console.error);
+        };
+        reader.readAsArrayBuffer(file);
+        
+        event.target.value = ''; // Clear the file input
+      });
     }
 
     // Accessibility: if empty and on mobile, focus editor by default
