@@ -47,9 +47,10 @@
       width:100%; max-width:var(--maxwidth); background:transparent;
       display:grid; grid-template-columns:1fr; gap:var(--gap);
     }
-    .shell{background:var(--card); backdrop-filter:blur(14px) saturate(140%); -webkit-backdrop-filter:blur(14px) saturate(140%); border-radius:18px; box-shadow:var(--shadow); overflow:hidden; display:flex; flex-direction:column; min-height:560px; border:1px solid var(--border)}
+    .shell{background:var(--card); backdrop-filter:blur(14px) saturate(140%); -webkit-backdrop-filter:blur(14px) saturate(140%); border-radius:18px; box-shadow:var(--shadow); overflow:hidden; display:flex; flex-direction:column; min-height:560px; max-height:90vh; border:1px solid var(--border)}
 
-    /* toolbar: top on desktop, bottom on mobile */
+    /* toolbar: always sticky at top */
+    .toolbar-wrapper{position:sticky; top:0; background:var(--card); backdrop-filter:blur(14px) saturate(140%); -webkit-backdrop-filter:blur(14px) saturate(140%); z-index:10; border-bottom:1px solid var(--border)}
     .toolbar{display:flex; gap:8px; padding:12px; align-items:center; justify-content:center; background:transparent}
     .toolbar .tab-btn{background:transparent;border:1px solid var(--border);padding:8px 12px;border-radius:12px;cursor:pointer;font-weight:600;color:var(--text)}
     .toolbar .tab-btn.active{background:rgba(255,255,255,0.15); color:var(--text); box-shadow:0 4px 12px rgba(108,92,231,0.12); border:1px solid var(--accent); backdrop-filter:blur(10px)}
@@ -57,13 +58,13 @@
     .toolbar .spacer{flex:1}
     .toolbar .theme-toggle{min-width:44px; height:36px; display:inline-flex; align-items:center; justify-content:center}
 
-    .content{display:grid; grid-template-columns:1fr; gap:16px; padding:18px}
+    .content{display:grid; grid-template-columns:1fr; gap:16px; padding:18px; flex:1; overflow-y:auto; max-height:calc(90vh - 140px)}
 
     .editor{display:flex; flex-direction:column; gap:10px}
     .field{display:flex; flex-direction:column; gap:6px}
-    input.title{padding:12px 14px; border-radius:12px; border:1px solid var(--border); font-size:16px; background:transparent; color:var(--text)}
+    input.title{padding:12px 14px; border-radius:12px; border:1px solid var(--border); font-size:16px; background:var(--card); color:var(--text); position:sticky; top:0; z-index:5; backdrop-filter:blur(10px)}
     .rte-box{display:flex; flex-direction:column; gap:8px}
-    .rte-toolbar{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+    .rte-toolbar{display:flex; gap:8px; align-items:center; flex-wrap:wrap; position:sticky; top:60px; background:var(--card); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); z-index:4; padding:8px 0; border-radius:8px}
     .rte-area{min-height:260px; resize:vertical; padding:14px; border-radius:12px; border:1px solid var(--border); font-size:15px; line-height:1.5; background:transparent; color:var(--text)}
     .rte-area img{max-width:100%; height:auto; border-radius:10px}
     .row{display:flex; gap:8px; align-items:center}
@@ -91,17 +92,16 @@
 
     /* responsive toolbar placement */
     .shell{position:relative}
-    .toolbar-wrapper{position:relative}
     @media (min-width:768px){
-      .shell{min-height:520px}
-      .toolbar-wrapper{position:sticky; top:0; background:transparent; z-index:2}
+      .shell{min-height:520px; max-height:85vh}
       .toolbar{justify-content:flex-start;padding:18px 18px}
+      .content{max-height:calc(85vh - 120px)}
     }
     @media (max-width:767px){
-      .toolbar-wrapper{position:sticky; bottom:0; background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.95)); padding:10px}
       .toolbar{justify-content:center}
       body{padding:12px}
-      [data-theme="dark"] .toolbar-wrapper{background:linear-gradient(180deg, rgba(16,18,24,0.9), rgba(16,18,24,0.94))}
+      .shell{max-height:95vh}
+      .content{max-height:calc(95vh - 100px)}
     }
 
     /* small screens tweak */
@@ -157,9 +157,7 @@
       <div class="content">
         <!-- Editor view -->
         <div id="view-editor" class="editor" aria-hidden="false">
-          <div class="field">
-            <input id="note-title" class="title" placeholder="Title" />
-          </div>
+          <!-- Move RTE toolbar above title -->
           <div class="field rte-box">
             <div class="rte-toolbar" aria-label="Formatting">
               <button id="btnBold" class="icon-btn icon-glass" type="button" title="Bold (Ctrl/Cmd+B)"><span style="font-weight:700;">B</span></button>
@@ -168,6 +166,11 @@
               <input id="imgInput" type="file" accept="image/*" style="display:none" />
               <button id="btnImage" class="icon-btn icon-glass" type="button" title="Insert Image"><ion-icon name="image-outline"></ion-icon></button>
             </div>
+          </div>
+          <div class="field">
+            <input id="note-title" class="title" placeholder="Title" />
+          </div>
+          <div class="field rte-box">
             <div id="note-body" class="rte-area" contenteditable="true" aria-multiline="true" role="textbox" placeholder="Write here... (Ctrl/Cmd+S to save quickly)"></div>
           </div>
           <div class="row">
