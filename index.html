@@ -513,13 +513,80 @@
         
         // Create resizable container div
         const container = document.createElement('div');
-        container.style.cssText = 'display:inline-block; resize: both; overflow: hidden; border: 1px dashed gray; width: 300px; height: 200px; min-width: 100px; min-height: 100px; max-width: 100%; margin: 5px;';
+        container.style.cssText = 'display:inline-block; resize: both; overflow: hidden; border: 1px dashed gray; width: 300px; height: 200px; min-width: 100px; min-height: 100px; max-width: 100%; margin: 5px; position: relative;';
         
         // Create image element
         const img = document.createElement('img');
         img.src = url;
-        img.style.cssText = 'width:100%; height:100%; object-fit:contain; display: block;';
+        img.style.cssText = 'width:100%; height:100%; object-fit:contain; display: block; transition: transform 0.1s ease;';
         img.alt = 'Inserted image';
+        
+        // Add mobile pinch-to-zoom functionality
+        let startDistance = 0;
+        let currentScale = 1;
+        let isZooming = false;
+        
+        // Prevent default touch behaviors that might interfere
+        img.addEventListener("touchstart", e => {
+          if (e.touches.length === 2) {
+            e.preventDefault();
+            e.stopPropagation();
+            isZooming = true;
+            startDistance = getDistance(e.touches);
+            img.style.transition = 'none'; // Remove transition during zoom
+          }
+        }, { passive: false });
+
+        img.addEventListener("touchmove", e => {
+          if (e.touches.length === 2 && isZooming) {
+            e.preventDefault();
+            e.stopPropagation();
+            let newDistance = getDistance(e.touches);
+            let scale = (newDistance / startDistance) * currentScale;
+            // Limit scale between 0.5 and 3
+            scale = Math.max(0.5, Math.min(3, scale));
+            img.style.transform = `scale(${scale})`;
+          }
+        }, { passive: false });
+
+        img.addEventListener("touchend", e => {
+          if (isZooming) {
+            e.preventDefault();
+            e.stopPropagation();
+            isZooming = false;
+            img.style.transition = 'transform 0.1s ease'; // Restore transition
+            
+            // Update current scale when touch ends
+            const transform = img.style.transform;
+            const scaleMatch = transform.match(/scale\(([^)]+)\)/);
+            if (scaleMatch) {
+              currentScale = parseFloat(scaleMatch[1]);
+            }
+          }
+        }, { passive: false });
+
+        // Add double tap to reset zoom
+        let lastTap = 0;
+        img.addEventListener('touchend', (e) => {
+          const currentTime = new Date().getTime();
+          const tapLength = currentTime - lastTap;
+          if (tapLength < 500 && tapLength > 0 && e.touches.length === 0) {
+            // Double tap detected - reset zoom
+            currentScale = 1;
+            img.style.transform = 'scale(1)';
+            img.style.transition = 'transform 0.3s ease';
+            setTimeout(() => {
+              img.style.transition = 'transform 0.1s ease';
+            }, 300);
+          }
+          lastTap = currentTime;
+        });
+
+        function getDistance(touches) {
+          let dx = touches[0].clientX - touches[1].clientX;
+          let dy = touches[0].clientY - touches[1].clientY;
+          return Math.sqrt(dx * dx + dy * dy);
+        }
         
         // Add image to container
         container.appendChild(img);
