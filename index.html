@@ -158,6 +158,67 @@
       grid-column:span 2; background:linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3);
       color:white; font-size:11px; text-align:center; padding:4px;
     }
+
+    /* Image resize modal styling */
+    .image-modal{
+      position:fixed; top:0; left:0; width:100%; height:100%; 
+      background:rgba(0,0,0,0.6); display:none; z-index:1000; 
+      justify-content:center; align-items:center; backdrop-filter:blur(4px);
+    }
+    .image-modal.show{display:flex}
+    .image-modal-content{
+      background:var(--card); border-radius:16px; padding:24px; 
+      max-width:500px; width:90%; max-height:80vh; overflow-y:auto;
+      border:1px solid var(--border); box-shadow:var(--shadow);
+      backdrop-filter:blur(14px) saturate(140%); -webkit-backdrop-filter:blur(14px) saturate(140%);
+    }
+    .image-modal-header{
+      font-size:18px; font-weight:700; margin-bottom:16px; color:var(--text);
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .image-modal-close{
+      background:transparent; border:none; font-size:24px; cursor:pointer; 
+      color:var(--muted); padding:4px; border-radius:8px;
+    }
+    .image-modal-close:hover{background:var(--subtle)}
+    .image-preview{
+      width:100%; max-width:400px; margin:16px auto; display:block; 
+      border-radius:8px; border:1px solid var(--border);
+    }
+    .resize-controls{margin:16px 0; display:flex; flex-direction:column; gap:12px}
+    .resize-row{display:flex; gap:12px; align-items:center}
+    .resize-label{font-weight:600; color:var(--text); min-width:80px}
+    .resize-slider{flex:1; height:6px; border-radius:3px; background:var(--border); 
+      outline:none; -webkit-appearance:none; cursor:pointer}
+    .resize-slider::-webkit-slider-thumb{
+      -webkit-appearance:none; width:18px; height:18px; border-radius:50%; 
+      background:var(--accent); cursor:pointer; box-shadow:0 2px 6px rgba(108,92,231,0.3);
+    }
+    .resize-slider::-moz-range-thumb{
+      width:18px; height:18px; border-radius:50%; background:var(--accent); 
+      cursor:pointer; border:none; box-shadow:0 2px 6px rgba(108,92,231,0.3);
+    }
+    .resize-value{color:var(--muted); font-weight:600; min-width:60px; text-align:right}
+    .size-presets{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+    .size-preset{
+      background:var(--subtle); border:1px solid var(--border); 
+      padding:6px 12px; border-radius:8px; cursor:pointer; font-size:12px; 
+      color:var(--text); font-weight:600; transition:all 0.2s ease;
+    }
+    .size-preset:hover{background:var(--accent); color:white; border-color:var(--accent)}
+    .modal-actions{display:flex; gap:12px; justify-content:flex-end; margin-top:20px}
+    .modal-btn{
+      padding:10px 16px; border-radius:10px; border:none; cursor:pointer; 
+      font-weight:600; transition:all 0.2s ease;
+    }
+    .modal-btn.primary{
+      background:var(--accent); color:white; box-shadow:0 4px 12px rgba(108,92,231,0.3);
+    }
+    .modal-btn.primary:hover{transform:translateY(-1px); box-shadow:0 6px 16px rgba(108,92,231,0.4)}
+    .modal-btn.secondary{
+      background:var(--subtle); color:var(--text); border:1px solid var(--border);
+    }
+    .modal-btn.secondary:hover{background:var(--border)}
   </style>
 </head>
 <body>
@@ -244,6 +305,39 @@
         <div>Thank You use text2 note</div>
         <div style="font-style:italic">Note now</div>
       </footer>
+    </div>
+  </div>
+
+  <!-- Image Resize Modal -->
+  <div class="image-modal" id="imageModal">
+    <div class="image-modal-content">
+      <div class="image-modal-header">
+        <span>Resize Image</span>
+        <button class="image-modal-close" id="imageModalClose">&times;</button>
+      </div>
+      <img class="image-preview" id="imagePreview" src="" alt="Preview">
+      <div class="resize-controls">
+        <div class="resize-row">
+          <label class="resize-label">Width:</label>
+          <input type="range" class="resize-slider" id="widthSlider" min="50" max="800" value="300">
+          <span class="resize-value" id="widthValue">300px</span>
+        </div>
+        <div class="resize-row">
+          <label class="resize-label">Height:</label>
+          <input type="range" class="resize-slider" id="heightSlider" min="50" max="600" value="200">
+          <span class="resize-value" id="heightValue">200px</span>
+        </div>
+        <div class="size-presets">
+          <button class="size-preset" data-width="150" data-height="100">Small</button>
+          <button class="size-preset" data-width="300" data-height="200">Medium</button>
+          <button class="size-preset" data-width="500" data-height="350">Large</button>
+          <button class="size-preset" data-width="100" data-height="100">Square</button>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" id="cancelResize">Cancel</button>
+        <button class="modal-btn primary" id="confirmResize">Insert Image</button>
+      </div>
     </div>
   </div>
 
@@ -416,16 +510,35 @@
       const reader = new FileReader();
       reader.onload = ()=>{
         const url = reader.result;
+        
+        // Create resizable container div
+        const container = document.createElement('div');
+        container.style.cssText = 'display:inline-block; resize: both; overflow: hidden; border: 1px dashed gray; width: 300px; height: 200px; min-width: 100px; min-height: 100px; max-width: 100%; margin: 5px;';
+        
+        // Create image element
         const img = document.createElement('img');
         img.src = url;
+        img.style.cssText = 'width:100%; height:100%; object-fit:contain; display: block;';
+        img.alt = 'Inserted image';
+        
+        // Add image to container
+        container.appendChild(img);
+        
         const sel = window.getSelection();
         if(sel && sel.rangeCount){
           const range = sel.getRangeAt(0);
           range.deleteContents();
-          range.insertNode(img);
+          range.insertNode(container);
+          // Move cursor after the inserted container
+          range.setStartAfter(container);
+          range.collapse(true);
+          sel.removeAllRanges();
+          sel.addRange(range);
         } else {
-          bodyInput.appendChild(img);
+          bodyInput.appendChild(container);
         }
+        
+        bodyInput.focus();
       };
       reader.readAsDataURL(file);
       e.target.value='';
