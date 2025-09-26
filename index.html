@@ -131,6 +131,32 @@
     .export-option:hover{background:var(--subtle)}
     .export-option ion-icon{font-size:16px}
     [data-theme="dark"] .export-option:hover{background:rgba(255,255,255,0.08)}
+
+    /* Color picker dropdown styling */
+    .color-dropdown{position:relative; display:inline-block}
+    .color-menu{
+      position:absolute; top:100%; left:0; min-width:220px; 
+      background:var(--card); border:1px solid var(--border); border-radius:12px; 
+      box-shadow:var(--shadow); backdrop-filter:blur(14px) saturate(140%); 
+      -webkit-backdrop-filter:blur(14px) saturate(140%); 
+      display:none; z-index:10; overflow:hidden; margin-top:4px; padding:12px;
+    }
+    .color-menu.show{display:block}
+    .color-section{margin-bottom:12px}
+    .color-section:last-child{margin-bottom:0}
+    .color-section-title{font-size:12px; color:var(--muted); margin-bottom:8px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px}
+    .color-grid{display:grid; grid-template-columns:repeat(6, 1fr); gap:6px}
+    .color-option{
+      width:28px; height:28px; border-radius:8px; cursor:pointer; border:2px solid transparent;
+      display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px;
+      transition:all 0.2s ease; position:relative;
+    }
+    .color-option:hover{transform:scale(1.1); border-color:var(--accent)}
+    .color-option.active{border-color:var(--accent); box-shadow:0 0 0 2px rgba(108,92,231,0.3)}
+    .color-custom{
+      grid-column:span 2; background:linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3);
+      color:white; font-size:11px; text-align:center; padding:4px;
+    }
   </style>
 </head>
 <body>
@@ -165,6 +191,27 @@
               <button id="btnUnderline" class="icon-btn icon-glass" type="button" title="Underline (Ctrl/Cmd+U)"><span style="text-decoration:underline;">U</span></button>
               <input id="imgInput" type="file" accept="image/*" style="display:none" />
               <button id="btnImage" class="icon-btn icon-glass" type="button" title="Insert Image"><ion-icon name="image-outline"></ion-icon></button>
+              <input id="colorInput" type="color" value="#000000" style="display:none" />
+              <div class="color-dropdown">
+                <button id="btnColor" class="icon-btn icon-glass" type="button" title="Text Color"><ion-icon name="color-palette-outline"></ion-icon></button>
+                <div class="color-menu" id="color-menu">
+                  <div class="color-section">
+                    <div class="color-section-title">Quick Colors</div>
+                    <div class="color-grid">
+                      <div class="color-option" data-color="#ffffff" style="background-color: #ffffff; color: black; border: 2px solid #e5e7eb;" title="White">A</div>
+                      <div class="color-option" data-color="#dc2626" style="background-color: #dc2626; color: white;" title="Red">A</div>
+                      <div class="color-option" data-color="#16a34a" style="background-color: #16a34a; color: white;" title="Green">A</div>
+                      <div class="color-option" data-color="#ca8a04" style="background-color: #ca8a04; color: white;" title="Yellow">A</div>
+                    </div>
+                  </div>
+                  <div class="color-section">
+                    <div class="color-section-title">Custom Color</div>
+                    <div class="color-grid">
+                      <div class="color-option color-custom" id="customColorBtn" title="Choose Custom Color">Custom</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           <div class="field">
@@ -236,6 +283,8 @@
     const btnUnderline = document.getElementById('btnUnderline');
     const btnImage = document.getElementById('btnImage');
     const imgInput = document.getElementById('imgInput');
+    const colorInput = document.getElementById('colorInput');
+    const btnColor = document.getElementById('btnColor');
     const exportBtn = document.getElementById('export-btn');
     const exportMenu = document.getElementById('export-menu');
     const exportDocx = document.getElementById('export-docx');
@@ -351,6 +400,15 @@
     if(btnItalic) btnItalic.addEventListener('click', ()=> exec('italic'));
     if(btnUnderline) btnUnderline.addEventListener('click', ()=> exec('underline'));
     if(btnImage) btnImage.addEventListener('click', ()=> imgInput && imgInput.click());
+    
+    // Color picker functionality
+    if(btnColor) btnColor.addEventListener('click', ()=> colorInput && colorInput.click());
+    if(colorInput) colorInput.addEventListener('change', (e)=>{
+      const color = e.target.value;
+      document.execCommand('foreColor', false, color);
+      bodyInput.focus();
+    });
+    
     if(imgInput) imgInput.addEventListener('change', (e)=>{
       const file = e.target.files && e.target.files[0];
       if(!file) return;
