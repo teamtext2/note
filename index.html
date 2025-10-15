@@ -28,381 +28,132 @@
   <link rel="canonical" href="https://note.text2.click">
   <style>
     :root{
-      --radius: 16px;
-      --gap: 16px;
-      --maxwidth: 880px;
-      --font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-      --accent: #8A2BE2; /* A vibrant purple */
-      --accent-light: #9932CC;
-      --accent-glow: rgba(138, 43, 226, 0.3);
-
-      /* Light Theme */
-      --bg-light: #f4f4f8;
-      --card-bg-light: rgba(255, 255, 255, 0.45);
-      --border-light: rgba(255, 255, 255, 0.6);
-      --text-light: #1a1a2e;
-      --muted-light: #6a6a8b;
-      --subtle-light: rgba(230, 230, 250, 0.5);
-      --shadow-light: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+      --bg:#f6f7fb; --card:#ffffff; --muted:#6b7280; --accent:#6c5ce7;
+      --radius:14px; --shadow:0 6px 18px rgba(28,30,40,0.08);
+      --gap:14px; --maxwidth:880px;
+      --text:#111827; --border:#e6e9f2; --subtle:#f0f2fb;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     }
-    
     [data-theme="dark"]{
-      /* Dark Theme */
-      --bg-dark: #12121a;
-      --card-bg-dark: rgba(30, 30, 45, 0.55);
-      --border-dark: rgba(255, 255, 255, 0.15);
-      --text-dark: #e0e0fc;
-      --muted-dark: #9a9ac8;
-      --subtle-dark: rgba(40, 40, 60, 0.7);
-      --shadow-dark: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      --bg:#0e1016; --card:rgba(22,24,32,0.65); --muted:#a5adba; --accent:#9b8cff;
+      --text:#e8eaf0; --border:#2f3442; --subtle:#1a1f2b;
     }
-
-    [data-theme="light"] {
-        --bg: var(--bg-light);
-        --card-bg: var(--card-bg-light);
-        --border-color: var(--border-light);
-        --text-color: var(--text-light);
-        --muted-color: var(--muted-light);
-        --subtle-bg: var(--subtle-light);
-        --shadow: var(--shadow-light);
-    }
-
-    [data-theme="dark"] {
-        --bg: var(--bg-dark);
-        --card-bg: var(--card-bg-dark);
-        --border-color: var(--border-dark);
-        --text-color: var(--text-dark);
-        --muted-color: var(--muted-dark);
-        --subtle-bg: var(--subtle-dark);
-        --shadow: var(--shadow-dark);
-    }
-    
     *{box-sizing:border-box}
-    
-    html,body{height:100%; font-family: var(--font-family);}
-    
+    html,body{height:100%}
     body{
-      margin:0; 
-      background-color: var(--bg); 
-      color: var(--text-color); 
-      display:flex; 
-      align-items:center; 
-      justify-content:center; 
-      padding:24px;
-      overflow: hidden;
-      transition: background-color 0.3s ease;
+      margin:0; background:var(--bg); color:var(--text); display:flex; align-items:stretch; justify-content:stretch; padding:0;
     }
-
-    /* Animated Gradient Background */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      z-index: -1;
-      background: radial-gradient(circle at 15% 25%, #8A2BE2, transparent 30%),
-                  radial-gradient(circle at 85% 75%, #4158D0, transparent 40%),
-                  radial-gradient(circle at 50% 50%, #FF2525, transparent 35%);
-      filter: blur(120px);
-      transform: scale(1.2);
-      animation: rotate-gradient 30s ease-in-out infinite;
-    }
-
-    @keyframes rotate-gradient {
-      0% { transform: scale(1.2) rotate(0deg); }
-      50% { transform: scale(1.4) rotate(180deg); }
-      100% { transform: scale(1.2) rotate(360deg); }
-    }
-    
+    /* fix dark theme inversion */
+    [data-theme="dark"] body{ background:var(--bg); color:var(--text); }
     .app{
-      width:100%; 
-      max-width:var(--maxwidth); 
-      background:transparent;
-      display:grid; 
-      grid-template-columns:1fr; 
-      gap:var(--gap);
+      width:100vw; height:100vh; background:transparent;
+      display:grid; grid-template-columns:1fr; gap:0;
     }
+    .shell{background:var(--card); backdrop-filter:blur(14px) saturate(140%); -webkit-backdrop-filter:blur(14px) saturate(140%); border-radius:0; box-shadow:none; overflow:hidden; display:flex; flex-direction:column; min-height:100vh; max-height:100vh; border:none}
 
-    /* Main Glass Shell */
-    .shell{
-      background: var(--card-bg);
-      backdrop-filter: blur(25px) saturate(180%); 
-      -webkit-backdrop-filter: blur(25px) saturate(180%);
-      border-radius: 24px; 
-      box-shadow: var(--shadow); 
-      overflow:hidden; 
-      display:flex; 
-      flex-direction:column; 
-      min-height:560px; 
-      max-height:90vh; 
-      border: 1px solid var(--border-color);
-      transition: background 0.3s, border 0.3s;
-    }
-
-    /* Toolbar */
-    .toolbar-wrapper{
-      position:sticky; 
-      top:0; 
-      background: var(--card-bg); 
-      backdrop-filter:blur(25px) saturate(180%); 
-      -webkit-backdrop-filter:blur(25px) saturate(180%); 
-      z-index:10; 
-      border-bottom: 1px solid var(--border-color);
-      padding: 8px 0;
-    }
-    
-    .toolbar{
-      display:flex; 
-      gap:8px; 
-      padding: 8px 16px; 
-      align-items:center; 
-      justify-content:center; 
-      background:transparent;
-    }
-    
-    .tab-btn, .icon-btn {
-      background: transparent;
-      border: 1px solid transparent;
-      padding: 8px 14px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: 600;
-      color: var(--text-color);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s ease-in-out;
-    }
-
-    .tab-btn:hover, .icon-btn:hover {
-        background: var(--subtle-bg);
-        border-color: var(--border-color);
-        transform: translateY(-2px);
-    }
-    
-    .tab-btn.active{
-      background: var(--accent); 
-      color: white; 
-      box-shadow: 0 4px 20px var(--accent-glow);
-      border-color: var(--accent-light);
-    }
-
+    /* toolbar: always sticky at top */
+    .toolbar-wrapper{position:sticky; top:0; background:var(--card); backdrop-filter:blur(14px) saturate(140%); -webkit-backdrop-filter:blur(14px) saturate(140%); z-index:10; border-bottom:1px solid var(--border)}
+    .toolbar{display:flex; gap:8px; padding:12px; align-items:center; justify-content:center; background:transparent}
+    .toolbar .tab-btn{background:transparent;border:1px solid var(--border);padding:8px 12px;border-radius:12px;cursor:pointer;font-weight:600;color:var(--text)}
+    .toolbar .tab-btn.active{background:rgba(255,255,255,0.15); color:var(--text); box-shadow:0 4px 12px rgba(108,92,231,0.12); border:1px solid var(--accent); backdrop-filter:blur(10px)}
+    [data-theme="dark"] .toolbar .tab-btn.active{background:rgba(255,255,255,0.1); color:var(--text); border:1px solid var(--accent)}
     .toolbar .spacer{flex:1}
-    
-    .theme-toggle{
-      min-width:44px; 
-      height: 40px; 
-      justify-content:center;
-      font-size: 22px;
-    }
+    .toolbar .theme-toggle{min-width:44px; height:36px; display:inline-flex; align-items:center; justify-content:center}
 
-    .content{
-      display:grid; 
-      grid-template-columns:1fr; 
-      gap:16px; 
-      padding:18px; 
-      flex:1; 
-      overflow-y:auto; 
-      max-height:calc(90vh - 140px);
-    }
-    /* Custom Scrollbar for a modern look */
-    .content::-webkit-scrollbar { width: 6px; }
-    .content::-webkit-scrollbar-track { background: transparent; }
-    .content::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
-    .content::-webkit-scrollbar-thumb:hover { background: var(--accent-light); }
+    .content{display:grid; grid-template-columns:1fr; gap:16px; padding:16px; flex:1; overflow-y:auto; max-height:calc(100vh - 120px)}
 
-    .editor{display:flex; flex-direction:column; gap:12px}
-    .field{display:flex; flex-direction:column; gap:8px}
-
-    input.title, .rte-area, .search {
-      padding: 14px 16px;
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
-      font-size: 16px;
-      background: var(--subtle-bg);
-      color: var(--text-color);
-      transition: all 0.2s ease-in-out;
-      width: 100%;
-    }
-    input.title::placeholder, .rte-area::placeholder, .search::placeholder {
-      color: var(--muted-color);
-    }
-    input.title:focus, .rte-area:focus, .search:focus {
-        outline: none;
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px var(--accent-glow);
-        background: var(--card-bg);
-    }
-
-    .rte-toolbar{
-      display:flex; 
-      gap:8px; 
-      align-items:center; 
-      flex-wrap:wrap; 
-      position:sticky; 
-      top: -10px; /* Adjust for better positioning */
-      background:var(--card-bg); 
-      backdrop-filter:blur(10px); 
-      -webkit-backdrop-filter:blur(10px); 
-      z-index:4; 
-      padding:8px 12px;
-      border-radius: var(--radius);
-      border: 1px solid var(--border-color);
-    }
-
-    .rte-area{
-      min-height:260px; 
-      resize:vertical; 
-      line-height:1.6;
-    }
-    
+    .editor{display:flex; flex-direction:column; gap:10px}
+    .field{display:flex; flex-direction:column; gap:6px}
+    input.title{padding:12px 14px; border-radius:12px; border:1px solid var(--border); font-size:16px; background:var(--card); color:var(--text); position:sticky; top:0; z-index:5; backdrop-filter:blur(10px)}
+    .rte-box{display:flex; flex-direction:column; gap:8px}
+    .rte-toolbar{display:flex; gap:8px; align-items:center; flex-wrap:wrap; position:sticky; top:60px; background:var(--card); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); z-index:4; padding:8px 0; border-radius:8px}
+    .rte-area{min-height:260px; resize:vertical; padding:14px; border-radius:12px; border:1px solid var(--border); font-size:15px; line-height:1.5; background:transparent; color:var(--text)}
     .rte-area img{max-width:100%; height:auto; border-radius:10px}
-    
-    .row{display:flex; gap:12px; align-items:center}
-    
-    .btn{
-      padding:12px 20px;
-      border-radius:12px;
-      border:none;
-      cursor:pointer;
-      font-weight:700;
-      font-size: 14px;
-      transition: all 0.2s ease-in-out;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-    
-    .btn.save{
-      background: var(--accent); 
-      color: white; 
-      box-shadow: 0 4px 20px var(--accent-glow);
-    }
-    .btn.save:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 25px var(--accent-glow);
-    }
-    
-    .btn.clear{
-      background: var(--subtle-bg);
-      color: var(--muted-color); 
-      border: 1px solid var(--border-color);
-    }
-     .btn.clear:hover {
-        background: var(--card-bg);
-        color: var(--text-color);
-    }
+    .row{display:flex; gap:8px; align-items:center}
+    .btn{padding:10px 14px;border-radius:12px;border:none;cursor:pointer;font-weight:700}
+    .btn.save{background:rgba(255,255,255,0.12); color:var(--text); border:1px solid var(--border); backdrop-filter:blur(10px)}
+    .btn.clear{background:rgba(240,242,255,0.6); color:var(--muted); border:1px solid var(--border); backdrop-filter:blur(10px)}
+    [data-theme="dark"] .btn.clear{background:rgba(255,255,255,0.06); color:var(--muted); border:1px solid var(--border)}
+    [data-theme="dark"] .btn.save{background:rgba(255,255,255,0.08); color:var(--text); border:1px solid var(--border)}
 
-    .notes-list{display:flex; flex-direction:column; gap:12px}
-    
-    .note-card{
-      background: var(--subtle-bg); 
-      border-radius: var(--radius); 
-      padding: 16px; 
-      border: 1px solid var(--border-color); 
-      cursor:pointer; 
-      display:flex; 
-      justify-content:space-between; 
-      align-items:center; 
-      transition: all 0.2s ease-in-out;
-    }
-    .note-card:hover {
-        transform: scale(1.02);
-        box-shadow: var(--shadow);
-        border-color: var(--accent);
-    }
-    
+    .notes-list{display:flex; flex-direction:column; gap:10px}
+    .note-card{background:linear-gradient(180deg,rgba(255,255,255,0.7),rgba(251,251,255,0.5)); border-radius:12px; padding:12px; border:1px solid var(--subtle); cursor:pointer; display:flex; justify-content:space-between; align-items:center; backdrop-filter:blur(10px)}
     .note-meta{display:flex; flex-direction:column}
-    .note-title{font-weight:700; font-size: 16px; margin-bottom: 4px;}
-    .note-time{color:var(--muted-color); font-size:13px}
+    .note-title{font-weight:700}
+    .note-time{color:var(--muted); font-size:13px}
     .note-actions{display:flex; gap:8px; align-items:center}
-    
-    .icon-glass {
-      background: var(--subtle-bg);
-      border: 1px solid var(--border-color);
-    }
-    
-    .icon-btn ion-icon{font-size:20px; vertical-align:middle}
+    .icon-btn{background:transparent;border:none; padding:8px 10px;border-radius:12px; cursor:pointer; color:var(--text)}
+    .icon-glass{background:rgba(255,255,255,0.12); border:1px solid var(--border); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px)}
+    .icon-glass:hover{background:rgba(255,255,255,0.2)}
+    [data-theme="dark"] .note-card{background:linear-gradient(180deg,rgba(30,32,44,0.6),rgba(22,24,32,0.6))}
+    [data-theme="dark"] .icon-glass{background:rgba(255,255,255,0.06); border-color:var(--border)}
+    [data-theme="dark"] .icon-glass:hover{background:rgba(255,255,255,0.1)}
+    .icon-btn ion-icon{font-size:18px; vertical-align:middle}
 
-    .empty{padding:48px; text-align:center; color:var(--muted-color); font-size: 16px;}
-    .empty::before {
-      content: '📝';
-      font-size: 48px;
-      display: block;
-      margin-bottom: 16px;
-      opacity: 0.5;
-    }
+    .empty{padding:24px; text-align:center; color:var(--muted)}
 
-
-    /* Responsive adjustments */
+    /* responsive toolbar placement */
+    .shell{position:relative}
     @media (min-width:768px){
-      .shell{min-height:520px; max-height:85vh}
-      .toolbar{justify-content:flex-start;padding:12px 24px}
-      .content{max-height:calc(85vh - 120px)}
+      .shell{min-height:100vh; max-height:100vh}
+      .toolbar{justify-content:flex-start;padding:14px 16px}
+      .content{max-height:calc(100vh - 116px)}
     }
-    
+    /* Two-pane layout on large screens */
+    @media (min-width:1024px){
+      .content{grid-template-columns:1fr 1fr; gap:20px}
+      #view-editor{display:flex !important}
+      #view-list{display:flex !important}
+    }
     @media (max-width:767px){
+      .toolbar{justify-content:center}
       body{padding:0}
-      .app { height: 100vh; }
-      .shell{max-height:100vh; height: 100%; border-radius: 0;}
+      .shell{max-height:100vh}
       .content{max-height:calc(100vh - 100px)}
     }
 
-    /* Footer */
-    footer.hint{
-        padding:12px 18px; 
-        font-size:13px; 
-        color:var(--muted-color); 
-        display:flex; 
-        justify-content:space-between; 
-        align-items:center;
-        border-top: 1px solid var(--border-color);
-        background: var(--card-bg);
-    }
-    
-    /* Dropdown Menus */
-    .export-dropdown, .color-dropdown {position:relative; display:inline-block}
-    
-    .export-menu, .color-menu {
-      position:absolute; 
-      top:110%; 
-      left:0; 
-      min-width:180px; 
-      background:var(--card-bg); 
-      border:1px solid var(--border-color); 
-      border-radius: 12px; 
-      box-shadow:var(--shadow); 
-      backdrop-filter:blur(20px) saturate(180%); 
-      -webkit-backdrop-filter:blur(20px) saturate(180%); 
-      z-index:20; 
-      overflow:hidden; 
-      margin-top:4px;
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(-10px);
-      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
-    }
-    
-    .export-menu.show, .color-menu.show {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
+    /* small screens tweak */
+    @media (max-width:420px){
+      input.title{font-size:15px}
+      .btn{padding:8px 10px}
     }
 
+    footer.hint{padding:12px 18px; font-size:13px; color:var(--muted); display:flex; justify-content:space-between; align-items:center}
+    .search{padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:transparent; color:var(--text)}
+
+    /* Export dropdown styling */
+    .export-dropdown{position:relative; display:inline-block}
+    .export-menu{
+      position:absolute; top:100%; left:0; min-width:180px; 
+      background:var(--card); border:1px solid var(--border); border-radius:12px; 
+      box-shadow:var(--shadow); backdrop-filter:blur(14px) saturate(140%); 
+      -webkit-backdrop-filter:blur(14px) saturate(140%); 
+      display:none; z-index:10; overflow:hidden; margin-top:4px;
+    }
+    .export-menu.show{display:block}
     .export-option{
       width:100%; padding:12px 16px; border:none; background:transparent; 
-      color:var(--text-color); text-align:left; cursor:pointer; font-size:14px; 
+      color:var(--text); text-align:left; cursor:pointer; font-size:14px; 
       display:flex; align-items:center; gap:8px; font-weight:500;
-      transition: background 0.2s ease;
     }
-    
-    .export-option:hover{background:var(--subtle-bg)}
-    .export-option ion-icon{font-size:18px}
-    
-    .color-menu{ min-width: 220px; padding: 12px; }
+    .export-option:hover{background:var(--subtle)}
+    .export-option ion-icon{font-size:16px}
+    /* use theme variable for hover instead of hardcoded white tint */
+    [data-theme="dark"] .export-option:hover{background:var(--subtle)}
+
+    /* Color picker dropdown styling */
+    .color-dropdown{position:relative; display:inline-block}
+    .color-menu{
+      position:absolute; top:100%; left:0; min-width:220px; 
+      background:var(--card); border:1px solid var(--border); border-radius:12px; 
+      box-shadow:var(--shadow); backdrop-filter:blur(14px) saturate(140%); 
+      -webkit-backdrop-filter:blur(14px) saturate(140%); 
+      display:none; z-index:10; overflow:hidden; margin-top:4px; padding:12px;
+    }
+    .color-menu.show{display:block}
     .color-section{margin-bottom:12px}
     .color-section:last-child{margin-bottom:0}
-    .color-section-title{font-size:12px; color:var(--muted-color); margin-bottom:8px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px}
+    .color-section-title{font-size:12px; color:var(--muted); margin-bottom:8px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px}
     .color-grid{display:grid; grid-template-columns:repeat(6, 1fr); gap:6px}
     .color-option{
       width:28px; height:28px; border-radius:8px; cursor:pointer; border:2px solid transparent;
@@ -410,83 +161,57 @@
       transition:all 0.2s ease; position:relative;
     }
     .color-option:hover{transform:scale(1.1); border-color:var(--accent)}
-    .color-option.active{border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-glow)}
+    .color-option.active{border-color:var(--accent); box-shadow:0 0 0 2px rgba(108,92,231,0.3)}
     .color-custom{
       grid-column:span 2; background:linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3);
       color:white; font-size:11px; text-align:center; padding:4px;
     }
 
-    /* Modals */
+    /* Image resize modal styling */
     .image-modal{
       position:fixed; top:0; left:0; width:100%; height:100%; 
-      background:rgba(0,0,0,0.3); 
-      display:none; 
-      z-index:1000; 
-      justify-content:center; align-items:center; 
-      backdrop-filter:blur(8px);
-      -webkit-backdrop-filter:blur(8px);
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s ease, visibility 0.3s;
+      background:rgba(0,0,0,0.6); display:none; z-index:1000; 
+      justify-content:center; align-items:center; backdrop-filter:blur(4px);
     }
-    
-    .image-modal.show{
-      display:flex;
-      opacity: 1;
-      visibility: visible;
-    }
-    
+    .image-modal.show{display:flex}
     .image-modal-content{
-      background: var(--card-bg); 
-      border-radius: 20px; 
-      padding:24px; 
+      background:var(--card); border-radius:16px; padding:24px; 
       max-width:500px; width:90%; max-height:80vh; overflow-y:auto;
-      border:1px solid var(--border-color); 
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(25px) saturate(180%); 
-      -webkit-backdrop-filter:blur(25px) saturate(180%);
-      transform: scale(0.95);
-      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border:1px solid var(--border); box-shadow:var(--shadow);
+      backdrop-filter:blur(14px) saturate(140%); -webkit-backdrop-filter:blur(14px) saturate(140%);
     }
-    .image-modal.show .image-modal-content {
-      transform: scale(1);
-    }
-
     .image-modal-header{
-      font-size:18px; font-weight:700; margin-bottom:16px; color:var(--text-color);
+      font-size:18px; font-weight:700; margin-bottom:16px; color:var(--text);
       display:flex; justify-content:space-between; align-items:center;
     }
-    
     .image-modal-close{
       background:transparent; border:none; font-size:24px; cursor:pointer; 
-      color:var(--muted-color); padding:4px; border-radius:8px;
+      color:var(--muted); padding:4px; border-radius:8px;
     }
-    
-    .image-modal-close:hover{background:var(--subtle-bg)}
+    .image-modal-close:hover{background:var(--subtle)}
     .image-preview{
       width:100%; max-width:400px; margin:16px auto; display:block; 
-      border-radius:8px; border:1px solid var(--border-color);
+      border-radius:8px; border:1px solid var(--border);
     }
     .resize-controls{margin:16px 0; display:flex; flex-direction:column; gap:12px}
     .resize-row{display:flex; gap:12px; align-items:center}
-    .resize-label{font-weight:600; color:var(--text-color); min-width:80px}
-    
-    .resize-slider{flex:1; height:6px; border-radius:3px; background:var(--border-color); 
-      outline:none; -webkit-appearance:none; cursor:pointer}
+    .resize-label{font-weight:600; color:var(--text); min-width:80px}
+    .resize-slider{flex:1; height:6px; border-radius:3px; background:var(--border); 
+      outline:none; appearance:none; -webkit-appearance:none; cursor:pointer}
     .resize-slider::-webkit-slider-thumb{
-      -webkit-appearance:none; width:18px; height:18px; border-radius:50%; 
-      background:var(--accent); cursor:pointer; box-shadow:0 2px 6px var(--accent-glow);
+      appearance:none; -webkit-appearance:none; width:18px; height:18px; border-radius:50%; 
+      background:var(--accent); cursor:pointer; box-shadow:0 2px 6px rgba(108,92,231,0.3);
     }
     .resize-slider::-moz-range-thumb{
       width:18px; height:18px; border-radius:50%; background:var(--accent); 
-      cursor:pointer; border:none; box-shadow:0 2px 6px var(--accent-glow);
+      cursor:pointer; border:none; box-shadow:0 2px 6px rgba(108,92,231,0.3);
     }
-    .resize-value{color:var(--muted-color); font-weight:600; min-width:60px; text-align:right}
+    .resize-value{color:var(--muted); font-weight:600; min-width:60px; text-align:right}
     .size-presets{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
     .size-preset{
-      background:var(--subtle-bg); border:1px solid var(--border-color); 
+      background:var(--subtle); border:1px solid var(--border); 
       padding:6px 12px; border-radius:8px; cursor:pointer; font-size:12px; 
-      color:var(--text-color); font-weight:600; transition:all 0.2s ease;
+      color:var(--text); font-weight:600; transition:all 0.2s ease;
     }
     .size-preset:hover{background:var(--accent); color:white; border-color:var(--accent)}
     .modal-actions{display:flex; gap:12px; justify-content:flex-end; margin-top:20px}
@@ -495,96 +220,97 @@
       font-weight:600; transition:all 0.2s ease;
     }
     .modal-btn.primary{
-      background:var(--accent); color:white; box-shadow:0 4px 12px var(--accent-glow);
+      background:var(--accent); color:white; box-shadow:0 4px 12px rgba(108,92,231,0.3);
     }
-    .modal-btn.primary:hover{transform:translateY(-1px); box-shadow:0 6px 16px var(--accent-glow)}
+    .modal-btn.primary:hover{transform:translateY(-1px); box-shadow:0 6px 16px rgba(108,92,231,0.4)}
     .modal-btn.secondary{
-      background:var(--subtle-bg); color:var(--text-color); border:1px solid var(--border-color);
+      background:var(--subtle); color:var(--text); border:1px solid var(--border);
     }
-    .modal-btn.secondary:hover{background:var(--border-color)}
+    .modal-btn.secondary:hover{background:var(--border)}
   </style>
 </head>
-<body data-theme="dark"> <!-- Start with dark theme as default -->
+<body>
   <div class="app">
     <div class="shell" id="appShell">
       <div class="toolbar-wrapper">
         <div class="toolbar" role="toolbar">
-          <button id="tab-edit" class="tab-btn active" aria-pressed="true"><ion-icon name="create-outline"></ion-icon> Note</button>
-          <button id="tab-list" class="tab-btn" aria-pressed="false"><ion-icon name="list-outline"></ion-icon> Saved</button>
-          <div class="spacer"></div>
-          <button id="open-file-btn" class="icon-btn" title="Open File"><ion-icon name="folder-open-outline"></ion-icon></button>
+          <button id="open-file-btn" class="tab-btn" title="Open File"><ion-icon name="folder-open-outline"></ion-icon> Open</button>
           <input id="file-input" type="file" accept=".docx,.doc" style="display:none" />
+          <button id="tab-edit" class="tab-btn active" aria-pressed="true"><ion-icon name="pencil-outline"></ion-icon> Note</button>
+          <button id="tab-list" class="tab-btn" aria-pressed="false"><ion-icon name="folder-outline"></ion-icon> Saved</button>
           <div class="export-dropdown">
-            <button id="export-btn" class="icon-btn" title="Export Notes"><ion-icon name="download-outline"></ion-icon></button>
+            <button id="export-btn" class="tab-btn" title="Export Notes"><ion-icon name="download-outline"></ion-icon> Export</button>
             <div class="export-menu" id="export-menu">
               <button id="export-docx" class="export-option"><ion-icon name="document-text-outline"></ion-icon>DOCX</button>
               <button id="export-pdf" class="export-option"><ion-icon name="document-outline"></ion-icon>PDF</button>
             </div>
           </div>
-          <button id="themeToggle" class="icon-btn theme-toggle" title="Light/Dark Mode"><ion-icon id="themeIcon" name="sunny-outline"></ion-icon></button>
+          <div class="spacer"></div>
+          <button id="themeToggle" class="icon-btn icon-glass theme-toggle" title="Light/Dark Mode"><ion-icon id="themeIcon" name="moon-outline"></ion-icon></button>
         </div>
       </div>
 
       <div class="content">
         <!-- Editor view -->
         <div id="view-editor" class="editor" aria-hidden="false">
-          <div class="field">
-            <input id="note-title" class="title" placeholder="Tiêu đề..." />
-          </div>
+          <!-- Move RTE toolbar above title -->
           <div class="field rte-box">
-             <div class="rte-toolbar" aria-label="Formatting">
-              <button id="btnBold" class="icon-btn" type="button" title="Bold (Ctrl/Cmd+B)"><ion-icon name="text-outline" style="font-weight: bold;"></ion-icon></button>
-              <button id="btnItalic" class="icon-btn" type="button" title="Italic (Ctrl/Cmd+I)"><ion-icon name="text-outline" style="font-style: italic;"></ion-icon></button>
-              <button id="btnUnderline" class="icon-btn" type="button" title="Underline (Ctrl/Cmd+U)"><ion-icon name="text-outline" style="text-decoration: underline;"></ion-icon></button>
+            <div class="rte-toolbar" aria-label="Formatting">
+              <button id="btnBold" class="icon-btn icon-glass" type="button" title="Bold (Ctrl/Cmd+B)"><span style="font-weight:700;">B</span></button>
+              <button id="btnItalic" class="icon-btn icon-glass" type="button" title="Italic (Ctrl/Cmd+I)"><span style="font-style:italic;">I</span></button>
+              <button id="btnUnderline" class="icon-btn icon-glass" type="button" title="Underline (Ctrl/Cmd+U)"><span style="text-decoration:underline;">U</span></button>
               <input id="imgInput" type="file" accept="image/*" style="display:none" />
-              <button id="btnImage" class="icon-btn" type="button" title="Insert Image"><ion-icon name="image-outline"></ion-icon></button>
+              <button id="btnImage" class="icon-btn icon-glass" type="button" title="Insert Image"><ion-icon name="image-outline"></ion-icon></button>
+              <input id="colorInput" type="color" value="#000000" style="display:none" />
               <div class="color-dropdown">
-                <button id="btnColor" class="icon-btn" type="button" title="Text Color"><ion-icon name="color-palette-outline"></ion-icon></button>
+                <button id="btnColor" class="icon-btn icon-glass" type="button" title="Text Color"><ion-icon name="color-palette-outline"></ion-icon></button>
                 <div class="color-menu" id="color-menu">
                   <div class="color-section">
                     <div class="color-section-title">Quick Colors</div>
                     <div class="color-grid">
-                      <div class="color-option" data-color="#E0E0FC" style="background-color: #E0E0FC; color: black;" title="White (Dark Mode Text)">A</div>
-                      <div class="color-option" data-color="#1A1A2E" style="background-color: #1A1A2E; color: white;" title="Black (Light Mode Text)">A</div>
-                      <div class="color-option" data-color="#FF6B6B" style="background-color: #FF6B6B; color: white;" title="Red">A</div>
-                      <div class="color-option" data-color="#4DDB6A" style="background-color: #4DDB6A; color: white;" title="Green">A</div>
-                      <div class="color-option" data-color="#54A0FF" style="background-color: #54A0FF; color: white;" title="Blue">A</div>
-                      <div class="color-option" data-color="#FFD166" style="background-color: #FFD166; color: white;" title="Yellow">A</div>
+                      <div class="color-option" data-color="#ffffff" style="background-color: #ffffff; color: black; border: 2px solid #e5e7eb;" title="White">A</div>
+                      <div class="color-option" data-color="#dc2626" style="background-color: #dc2626; color: white;" title="Red">A</div>
+                      <div class="color-option" data-color="#16a34a" style="background-color: #16a34a; color: white;" title="Green">A</div>
+                      <div class="color-option" data-color="#ca8a04" style="background-color: #ca8a04; color: white;" title="Yellow">A</div>
                     </div>
                   </div>
-                   <div class="color-section">
+                  <div class="color-section">
                     <div class="color-section-title">Custom Color</div>
                     <div class="color-grid">
                       <div class="color-option color-custom" id="customColorBtn" title="Choose Custom Color">Custom</div>
-                      <input id="colorInput" type="color" value="#E0E0FC" style="display:none" />
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div id="note-body" class="rte-area" contenteditable="true" aria-multiline="true" role="textbox" placeholder="Bắt đầu viết nào... (Ctrl/Cmd+S để lưu nhanh)"></div>
+          </div>
+          <div class="field">
+            <input id="note-title" class="title" placeholder="Title" />
+          </div>
+          <div class="field rte-box">
+            <div id="note-body" class="rte-area" contenteditable="true" aria-multiline="true" role="textbox" placeholder="Write here... (Ctrl/Cmd+S to save quickly)"></div>
           </div>
           <div class="row">
-            <button id="saveBtn" class="btn save"><ion-icon name="save-outline"></ion-icon> LƯU GHI CHÚ</button>
-            <button id="clearBtn" class="btn clear">Xóa</button>
+            <button id="saveBtn" class="btn save">SAVE</button>
+            <button id="clearBtn" class="btn clear">Clear</button>
             <div style="flex:1"></div>
-            <div class="note-count" id="noteCount" style="color: var(--muted-color); font-size: 14px;"></div>
+            <div class="note-count" id="noteCount"></div>
           </div>
         </div>
 
         <!-- List view -->
         <div id="view-list" class="notes-list" style="display:none;" aria-hidden="true">
           <div style="display:flex; gap:8px; align-items:center">
-            <input id="searchInput" class="search" placeholder="Tìm kiếm theo tiêu đề hoặc nội dung..." />
-            <button id="clearAll" class="btn clear">Xóa tất cả</button>
+            <input id="searchInput" class="search" placeholder="Search title or content" />
+            <button id="clearAll" class="btn clear">Clear All</button>
           </div>
           <div id="notesContainer"></div>
-          <div id="emptyMsg" class="empty" style="display:none">Chưa có ghi chú nào. Tạo một cái đi! 💡</div>
+          <div id="emptyMsg" class="empty" style="display:none">No notes yet. Write one quickly and save</div>
         </div>
       </div>
 
       <footer class="hint">
-        <div>Cảm ơn đã dùng text2 note</div>
+        <div>Thank You use text2 note</div>
         <div style="font-style:italic">Note now</div>
       </footer>
     </div>
@@ -594,7 +320,7 @@
   <div class="image-modal" id="imageModal">
     <div class="image-modal-content">
       <div class="image-modal-header">
-        <span>Chỉnh sửa ảnh</span>
+        <span>Resize Image</span>
         <button class="image-modal-close" id="imageModalClose">&times;</button>
       </div>
       <img class="image-preview" id="imagePreview" src="" alt="Preview">
@@ -617,27 +343,29 @@
         </div>
       </div>
       <div class="modal-actions">
-        <button class="modal-btn secondary" id="cancelResize">Hủy</button>
-        <button class="modal-btn primary" id="confirmResize">Chèn ảnh</button>
+        <button class="modal-btn secondary" id="cancelResize">Cancel</button>
+        <button class="modal-btn primary" id="confirmResize">Insert Image</button>
       </div>
     </div>
   </div>
 
-  <!-- Libraries -->
+  <!-- Ionicons CDN for iOS-like icons -->
   <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  <!-- HTML to DOCX conversion library -->
   <script src="https://unpkg.com/html-docx-js/dist/html-docx.js"></script>
+  <!-- HTML to PDF conversion library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- Mammoth library for DOCX parsing -->
   <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
 
   <script>
-    // --- App Logic (Unchanged except for minor fixes and enhancements) ---
-    const KEY = 'simple_notes_v2'; // Changed key to avoid conflict with old version
+    // Simple localStorage-backed notes app
+    const KEY = 'simple_notes_v1';
     let notes = [];
     let editingId = null;
 
-    // DOM Elements
-    const bodyEl = document.body;
+    // DOM
     const tabEdit = document.getElementById('tab-edit');
     const tabList = document.getElementById('tab-list');
     const viewEditor = document.getElementById('view-editor');
@@ -658,21 +386,16 @@
     const btnUnderline = document.getElementById('btnUnderline');
     const btnImage = document.getElementById('btnImage');
     const imgInput = document.getElementById('imgInput');
-    const btnColor = document.getElementById('btnColor');
-    const colorMenu = document.getElementById('color-menu');
-    const colorOptions = document.querySelectorAll('.color-option');
-    const customColorBtn = document.getElementById('customColorBtn');
     const colorInput = document.getElementById('colorInput');
+    const btnColor = document.getElementById('btnColor');
     const exportBtn = document.getElementById('export-btn');
     const exportMenu = document.getElementById('export-menu');
     const exportDocx = document.getElementById('export-docx');
     const exportPdf = document.getElementById('export-pdf');
     const openFileBtn = document.getElementById('open-file-btn');
     const fileInput = document.getElementById('file-input');
-    const imageModal = document.getElementById('imageModal');
-    let currentImageForResize = null;
 
-
+    // init
     function load(){
       try{ notes = JSON.parse(localStorage.getItem(KEY) || '[]'); }
       catch(e){ notes = []; }
@@ -681,57 +404,53 @@
     }
 
     function saveToStorage(){ localStorage.setItem(KEY, JSON.stringify(notes)); }
+
     function makeId(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 
     function saveNote(){
       const title = titleInput.value.trim();
       const body = (bodyInput.innerHTML || '').trim();
-      if(!title && !body){
-        // Using a custom, non-blocking notification would be better
-        alert('Vui lòng viết gì đó trước khi lưu nhé 🙂'); return 
-      }
+      if(!title && !body){ alert('Please write something before saving 🙂'); return }
       if(editingId){
         const i = notes.findIndex(n => n.id === editingId);
-        if(i > -1){ notes[i] = {...notes[i], title, body, updated: Date.now()}; }
+        if(i>-1){ notes[i].title = title; notes[i].body = body; notes[i].updated = Date.now(); }
       } else {
         notes.unshift({ id: makeId(), title, body, created: Date.now(), updated: Date.now(), pinned:false });
       }
       saveToStorage();
       renderNotesList();
       updateCount();
-      clearEditor();
-      showList(); // show saved notes after save
+      // reset editor
+      titleInput.value = '';
+      bodyInput.innerHTML = '';
+      editingId = null;
+      tabList.click(); // show saved notes after save
     }
-    
+
     function renderNotesList(filter=''){
       notesContainer.innerHTML = '';
       const f = filter.toLowerCase().trim();
       const list = notes
         .filter(n => {
           if(!f) return true;
-          const content = n.title.toLowerCase() + ' ' + n.body.replace(/<[^>]*>/g, '').toLowerCase();
-          return content.includes(f);
+          return (n.title||'').toLowerCase().includes(f) || (n.body||'').toLowerCase().includes(f);
         })
         .sort((a,b)=> (b.pinned===true) - (a.pinned===true) || (b.updated||0) - (a.updated||0));
-        
-      emptyMsg.style.display = list.length === 0 ? 'block' : 'none';
-      
+      if(list.length===0){ emptyMsg.style.display='block'; } else { emptyMsg.style.display='none'; }
       list.forEach(n => {
         const card = document.createElement('div'); card.className='note-card';
         const meta = document.createElement('div'); meta.className='note-meta';
-        const t = document.createElement('div'); t.className='note-title'; t.textContent = n.title || '(Không có tiêu đề)';
-        const s = document.createElement('div'); s.className='note-time'; s.textContent = new Date(n.updated || n.created).toLocaleString('vi-VN');
+        const t = document.createElement('div'); t.className='note-title'; t.textContent = n.title || '(No title)';
+        const s = document.createElement('div'); s.className='note-time'; s.textContent = new Date(n.updated || n.created).toLocaleString();
         meta.appendChild(t); meta.appendChild(s);
-        
         const actions = document.createElement('div'); actions.className='note-actions';
-        
-        const pinBtn = document.createElement('button'); pinBtn.className='icon-btn icon-glass'; pinBtn.title='Ghim / Bỏ ghim'; pinBtn.innerHTML = n.pinned ? '<ion-icon name="bookmark"></ion-icon>' : '<ion-icon name="bookmark-outline"></ion-icon>';
+        const pinBtn = document.createElement('button'); pinBtn.className='icon-btn icon-glass'; pinBtn.title='Pin / Unpin'; pinBtn.innerHTML = n.pinned ? '<ion-icon name="pin"></ion-icon>' : '<ion-icon name="pin-outline"></ion-icon>';
         pinBtn.onclick = (e)=>{ e.stopPropagation(); togglePin(n.id); };
-
-        const delBtn = document.createElement('button'); delBtn.className='icon-btn icon-glass'; delBtn.title='Xóa'; delBtn.innerHTML='<ion-icon name="trash-outline"></ion-icon>';
-        delBtn.onclick = (e)=>{ e.stopPropagation(); if(confirm('Bạn chắc chắn muốn xóa ghi chú này?')){ deleteNote(n.id); } }
-        
-        actions.appendChild(pinBtn); actions.appendChild(delBtn);
+        const openBtn = document.createElement('button'); openBtn.className='icon-btn icon-glass'; openBtn.title='Open to edit'; openBtn.innerHTML='<ion-icon name="create-outline"></ion-icon>';
+        openBtn.onclick = (e)=>{ e.stopPropagation(); openNote(n.id); }
+        const delBtn = document.createElement('button'); delBtn.className='icon-btn icon-glass'; delBtn.title='Delete'; delBtn.innerHTML='<ion-icon name="trash-outline"></ion-icon>';
+        delBtn.onclick = (e)=>{ e.stopPropagation(); if(confirm('Delete this note?')){ deleteNote(n.id); } }
+        actions.appendChild(pinBtn); actions.appendChild(openBtn); actions.appendChild(delBtn);
         card.appendChild(meta); card.appendChild(actions);
         card.onclick = ()=>{ openNote(n.id); }
         notesContainer.appendChild(card);
@@ -745,279 +464,312 @@
       showEditor();
     }
 
-    function deleteNote(id){ 
-      notes = notes.filter(n=>n.id!==id); 
-      saveToStorage(); 
-      renderNotesList(searchInput.value); 
-      updateCount(); 
-    }
+    function deleteNote(id){ notes = notes.filter(n=>n.id!==id); saveToStorage(); renderNotesList(); updateCount(); }
 
-    function clearEditor(){ 
-      editingId=null; 
-      titleInput.value=''; 
-      bodyInput.innerHTML=''; 
-    }
+    function clearEditor(){ editingId=null; titleInput.value=''; bodyInput.innerHTML=''; }
 
-    function updateCount(){ 
-      noteCount.textContent = notes.length > 0 ? `${notes.length} ghi chú` : 'Chưa có ghi chú'; 
-    }
+    function updateCount(){ noteCount.textContent = notes.length ? `${notes.length} notes` : 'No notes yet'; }
 
-    // Tabs
-    function switchTab(activeTab) {
-        if (activeTab === 'edit') {
-            tabEdit.classList.add('active');
-            tabEdit.setAttribute('aria-pressed', 'true');
-            tabList.classList.remove('active');
-            tabList.setAttribute('aria-pressed', 'false');
-            showEditor();
-        } else {
-            tabList.classList.add('active');
-            tabList.setAttribute('aria-pressed', 'true');
-            tabEdit.classList.remove('active');
-            tabEdit.setAttribute('aria-pressed', 'false');
-            showList();
-        }
-    }
-    tabEdit.addEventListener('click', () => switchTab('edit'));
-    tabList.addEventListener('click', () => switchTab('list'));
-    
-    function showEditor(){ 
-      viewEditor.style.display='flex'; 
-      viewEditor.setAttribute('aria-hidden','false'); 
-      viewList.style.display='none'; 
-      viewList.setAttribute('aria-hidden','true'); 
-      titleInput.focus(); 
-    }
+    // tabs
+    tabEdit.addEventListener('click', ()=>{ tabEdit.classList.add('active'); tabEdit.setAttribute('aria-pressed','true'); tabList.classList.remove('active'); tabList.setAttribute('aria-pressed','false'); showEditor(); });
+    tabList.addEventListener('click', ()=>{ tabList.classList.add('active'); tabList.setAttribute('aria-pressed','true'); tabEdit.classList.remove('active'); tabEdit.setAttribute('aria-pressed','false'); showList(); });
 
-    function showList(){ 
-      viewEditor.style.display='none'; 
-      viewEditor.setAttribute('aria-hidden','true'); 
-      viewList.style.display='flex'; 
-      viewList.setAttribute('aria-hidden','false'); 
-      searchInput.focus(); 
-    }
+    function showEditor(){ viewEditor.style.display='flex'; viewEditor.setAttribute('aria-hidden','false'); viewList.style.display='none'; viewList.setAttribute('aria-hidden','true'); titleInput.focus(); }
+    function showList(){ viewEditor.style.display='none'; viewEditor.setAttribute('aria-hidden','true'); viewList.style.display='flex'; viewList.setAttribute('aria-hidden','false'); searchInput.focus(); }
 
-    // Events
+    // events
     saveBtn.addEventListener('click', saveNote);
-    clearBtn.addEventListener('click', ()=>{ if(titleInput.value || bodyInput.innerHTML) { if(confirm('Nội dung hiện tại sẽ bị xóa?')) clearEditor(); } else { clearEditor(); } });
+    clearBtn.addEventListener('click', ()=>{ if(confirm('Clear will discard current content?')) clearEditor(); });
     searchInput.addEventListener('input', ()=>{ renderNotesList(searchInput.value); });
-    clearAll.addEventListener('click', ()=>{ if(notes.length > 0 && confirm('Bạn chắc chắn muốn xóa TẤT CẢ ghi chú?')){ notes=[]; saveToStorage(); renderNotesList(); updateCount(); } });
+    clearAll.addEventListener('click', ()=>{ if(confirm('Clear all notes?')){ notes=[]; saveToStorage(); renderNotesList(); updateCount(); } });
 
-    // Theme
-    const THEME_KEY = 'simple_notes_theme_v2';
+    // theme toggle with persistence
+    const THEME_KEY = 'simple_notes_theme';
     function applyTheme(theme){
-      bodyEl.setAttribute('data-theme', theme);
+      document.documentElement.setAttribute('data-theme', theme);
       localStorage.setItem(THEME_KEY, theme);
       if(themeIcon){ themeIcon.setAttribute('name', theme==='dark' ? 'sunny-outline' : 'moon-outline'); }
     }
     const savedTheme = localStorage.getItem(THEME_KEY) || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     applyTheme(savedTheme);
-    themeToggle.addEventListener('click', ()=>{
-      const next = bodyEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    if(themeToggle){ themeToggle.addEventListener('click', ()=>{
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
       applyTheme(next);
-    });
+    }); }
 
-    // RTE Commands
-    function exec(cmd, value = null){ document.execCommand(cmd, false, value); bodyInput.focus(); }
-    btnBold.addEventListener('click', ()=> exec('bold'));
-    btnItalic.addEventListener('click', ()=> exec('italic'));
-    btnUnderline.addEventListener('click', ()=> exec('underline'));
-    btnImage.addEventListener('click', ()=> imgInput.click());
-
-    // --- New Color Picker Logic ---
-    btnColor.addEventListener('click', (e) => {
-        e.stopPropagation();
-        colorMenu.classList.toggle('show');
-    });
-
-    colorOptions.forEach(option => {
-        option.addEventListener('click', (e) => {
-            const color = e.currentTarget.dataset.color;
-            if (color) {
-                exec('foreColor', color);
-                colorMenu.classList.remove('show');
-            }
-        });
-    });
-
-    customColorBtn.addEventListener('click', () => {
-        colorInput.click();
-    });
-
-    colorInput.addEventListener('input', (e) => {
-        exec('foreColor', e.target.value);
-    });
-
-    // Close dropdowns when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!exportBtn.contains(e.target) && !exportMenu.contains(e.target)) {
-        exportMenu.classList.remove('show');
-      }
-      if (!btnColor.contains(e.target) && !colorMenu.contains(e.target)) {
-        colorMenu.classList.remove('show');
-      }
-    });
-
-    // --- Image Resizing Modal Logic ---
-    const widthSlider = document.getElementById('widthSlider');
-    const heightSlider = document.getElementById('heightSlider');
-    const widthValue = document.getElementById('widthValue');
-    const heightValue = document.getElementById('heightValue');
-    const imagePreview = document.getElementById('imagePreview');
-    const sizePresets = document.querySelectorAll('.size-preset');
-
-    function openImageModal(imageSrc) {
-        currentImageForResize = imageSrc;
-        imagePreview.src = imageSrc;
-        imageModal.classList.add('show');
-    }
-
-    function closeImageModal() {
-        imageModal.classList.remove('show');
-        currentImageForResize = null;
-        imgInput.value = ''; // Reset file input
-    }
+    // rich text commands
+    function exec(cmd){ document.execCommand(cmd, false, null); bodyInput.focus(); }
+    if(btnBold) btnBold.addEventListener('click', ()=> exec('bold'));
+    if(btnItalic) btnItalic.addEventListener('click', ()=> exec('italic'));
+    if(btnUnderline) btnUnderline.addEventListener('click', ()=> exec('underline'));
+    if(btnImage) btnImage.addEventListener('click', ()=> imgInput && imgInput.click());
     
-    imgInput.addEventListener('change', (e) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            openImageModal(event.target.result);
-        };
-        reader.readAsDataURL(file);
+    // Color picker functionality
+    if(btnColor) btnColor.addEventListener('click', ()=> colorInput && colorInput.click());
+    if(colorInput) colorInput.addEventListener('change', (e)=>{
+      const color = e.target.value;
+      document.execCommand('foreColor', false, color);
+      bodyInput.focus();
     });
-
-    widthSlider.addEventListener('input', () => widthValue.textContent = `${widthSlider.value}px`);
-    heightSlider.addEventListener('input', () => heightValue.textContent = `${heightSlider.value}px`);
-
-    sizePresets.forEach(btn => {
-        btn.addEventListener('click', () => {
-            widthSlider.value = btn.dataset.width;
-            heightSlider.value = btn.dataset.height;
-            widthValue.textContent = `${btn.dataset.width}px`;
-            heightValue.textContent = `${btn.dataset.height}px`;
-        });
-    });
-
-    document.getElementById('imageModalClose').addEventListener('click', closeImageModal);
-    document.getElementById('cancelResize').addEventListener('click', closeImageModal);
     
-    document.getElementById('confirmResize').addEventListener('click', () => {
-        if (!currentImageForResize) return;
-
+    if(imgInput) imgInput.addEventListener('change', (e)=>{
+      const file = e.target.files && e.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        const url = reader.result;
+        
+        // Create resizable container div
+        const container = document.createElement('div');
+        container.style.cssText = 'display:inline-block; resize: both; overflow: hidden; border: 1px dashed gray; width: 300px; height: 200px; min-width: 100px; min-height: 100px; max-width: 100%; margin: 5px; position: relative;';
+        
+        // Create image element
         const img = document.createElement('img');
-        img.src = currentImageForResize;
-        img.style.width = `${widthSlider.value}px`;
-        img.style.height = `${heightSlider.value}px`;
-        img.style.maxWidth = '100%';
-        img.style.objectFit = 'contain';
-        img.style.borderRadius = '10px';
-        img.style.resize = 'both';
-        img.style.overflow = 'hidden';
-        img.style.border = '1px solid var(--border-color)';
+        img.src = url;
+        img.style.cssText = 'width:100%; height:100%; object-fit:contain; display: block; transition: transform 0.1s ease;';
+        img.alt = 'Inserted image';
+        
+        // Add mobile pinch-to-zoom functionality
+        let startDistance = 0;
+        let currentScale = 1;
+        let isZooming = false;
+        
+        // Prevent default touch behaviors that might interfere
+        img.addEventListener("touchstart", e => {
+          if (e.touches.length === 2) {
+            e.preventDefault();
+            e.stopPropagation();
+            isZooming = true;
+            startDistance = getDistance(e.touches);
+            img.style.transition = 'none'; // Remove transition during zoom
+          }
+        }, { passive: false });
+
+        img.addEventListener("touchmove", e => {
+          if (e.touches.length === 2 && isZooming) {
+            e.preventDefault();
+            e.stopPropagation();
+            let newDistance = getDistance(e.touches);
+            let scale = (newDistance / startDistance) * currentScale;
+            // Limit scale between 0.5 and 3
+            scale = Math.max(0.5, Math.min(3, scale));
+            img.style.transform = `scale(${scale})`;
+          }
+        }, { passive: false });
+
+        img.addEventListener("touchend", e => {
+          if (isZooming) {
+            e.preventDefault();
+            e.stopPropagation();
+            isZooming = false;
+            img.style.transition = 'transform 0.1s ease'; // Restore transition
+            
+            // Update current scale when touch ends
+            const transform = img.style.transform;
+            const scaleMatch = transform.match(/scale\(([^)]+)\)/);
+            if (scaleMatch) {
+              currentScale = parseFloat(scaleMatch[1]);
+            }
+          }
+        }, { passive: false });
+
+        // Add double tap to reset zoom
+        let lastTap = 0;
+        img.addEventListener('touchend', (e) => {
+          const currentTime = new Date().getTime();
+          const tapLength = currentTime - lastTap;
+          if (tapLength < 500 && tapLength > 0 && e.touches.length === 0) {
+            // Double tap detected - reset zoom
+            currentScale = 1;
+            img.style.transform = 'scale(1)';
+            img.style.transition = 'transform 0.3s ease';
+            setTimeout(() => {
+              img.style.transition = 'transform 0.1s ease';
+            }, 300);
+          }
+          lastTap = currentTime;
+        });
+
+        function getDistance(touches) {
+          let dx = touches[0].clientX - touches[1].clientX;
+          let dy = touches[0].clientY - touches[1].clientY;
+          return Math.sqrt(dx * dx + dy * dy);
+        }
+        
+        // Add image to container
+        container.appendChild(img);
+        
+        const sel = window.getSelection();
+        if(sel && sel.rangeCount){
+          const range = sel.getRangeAt(0);
+          range.deleteContents();
+          range.insertNode(container);
+          // Move cursor after the inserted container
+          range.setStartAfter(container);
+          range.collapse(true);
+          sel.removeAllRanges();
+          sel.addRange(range);
+        } else {
+          bodyInput.appendChild(container);
+        }
         
         bodyInput.focus();
-        exec('insertHTML', img.outerHTML + '&nbsp;'); // Add space after for easier typing
-        closeImageModal();
+      };
+      reader.readAsDataURL(file);
+      e.target.value='';
     });
 
-
-    // Pin
+    // pin feature
     function togglePin(id){
       const i = notes.findIndex(n=>n.id===id);
-      if(i>-1){ 
-        notes[i].pinned = !notes[i].pinned; 
-        notes[i].updated = Date.now(); 
-        saveToStorage(); 
-        renderNotesList(searchInput.value||''); 
-      }
+      if(i>-1){ notes[i].pinned = !notes[i].pinned; notes[i].updated = Date.now(); saveToStorage(); renderNotesList(searchInput.value||''); }
     }
 
-    // Keyboard shortcut
+    // keyboard shortcut save
     document.addEventListener('keydown', (e)=>{
       if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s'){
         e.preventDefault(); saveNote();
       }
     });
 
-    // Export
+    // initialize
+    load();
+
+    // Export functionality
     if(exportBtn && exportMenu) {
       exportBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         exportMenu.classList.toggle('show');
       });
-    }
 
-    if(exportDocx) exportDocx.addEventListener('click', () => { exportMenu.classList.remove('show'); exportToDocx(); });
-    if(exportPdf) exportPdf.addEventListener('click', () => { exportMenu.classList.remove('show'); exportToPdf(); });
-
-    function exportToDocx() {
-      const title = titleInput.value.trim() || 'Không có tiêu đề';
-      const body = bodyInput.innerHTML || '';
-      if (!body) return alert('Không có nội dung để xuất.');
-      
-      const htmlContent = `<h1>${title}</h1><div>${body}</div>`;
-      const blob = window.htmlDocx.asBlob(htmlContent);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${title}.docx`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function exportToPdf() {
-      const title = titleInput.value.trim() || 'Không có tiêu đề';
-      const body = bodyInput.innerHTML || '';
-      if (!body) return alert('Không có nội dung để xuất.');
-      
-      // Create a temporary element for PDF generation to control styling
-      const element = document.createElement('div');
-      element.style.padding = '20px';
-      element.style.fontFamily = 'Arial';
-      element.innerHTML = `<h1>${title}</h1><div>${body}</div>`;
-
-      const opt = {
-        margin:       1,
-        filename:     `${title}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-      };
-
-      html2pdf().set(opt).from(element).save();
-    }
-
-    // Open File
-    if(openFileBtn && fileInput) {
-      openFileBtn.addEventListener('click', () => fileInput.click());
-      fileInput.addEventListener('change', function(event) {
-        const file = this.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          mammoth.convertToHtml({arrayBuffer: e.target.result})
-            .then(result => {
-              bodyInput.innerHTML = result.value;
-              titleInput.value = file.name.replace(/\.[^/.]+$/, "");
-              showEditor();
-            })
-            .catch(err => {
-                console.error(err);
-                alert('Không thể đọc file .docx này.');
-            });
-        };
-        reader.readAsArrayBuffer(file);
-        event.target.value = '';
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!exportBtn.contains(e.target) && !exportMenu.contains(e.target)) {
+          exportMenu.classList.remove('show');
+        }
       });
     }
 
-    // --- Init ---
-    load();
-    switchTab('edit'); // Start on editor view
+    // Export options
+    if(exportDocx) {
+      exportDocx.addEventListener('click', () => {
+        exportMenu.classList.remove('show');
+        exportToDocx();
+      });
+    }
+
+    if(exportPdf) {
+      exportPdf.addEventListener('click', () => {
+        exportMenu.classList.remove('show');
+        exportToPdf();
+      });
+    }
+
+    // Export functions (placeholder implementations)
+    function exportToDocx() {
+      const title = titleInput.value.trim();
+      const body = (bodyInput.innerHTML || '').trim();
+      
+      if (!title && !body) {
+        alert('No content to export. Please write something first.');
+        return;
+      }
+      
+      // Create HTML content for DOCX export
+      const htmlContent = `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 20px; color: #333;">${title || 'Untitled'}</h2>
+          <div style="line-height: 1.6; font-size: 14px;">
+            ${body}
+          </div>
+        </div>
+      `;
+      
+      try {
+        const converted = window.htmlDocx.asBlob(htmlContent);
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(converted);
+        link.download = `${title || 'untitled'}-${new Date().toISOString().slice(0,10)}.docx`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+      } catch (error) {
+        console.error('Error exporting DOCX:', error);
+        alert('Error exporting to DOCX. Please try again.');
+      }
+    }
+
+    function exportToPdf() {
+      const title = titleInput.value.trim();
+      const body = (bodyInput.innerHTML || '').trim();
+      
+      if (!title && !body) {
+        alert('No content to export. Please write something first.');
+        return;
+      }
+      
+      // Create HTML content for PDF export with forced white background and black text
+      const content = `
+        <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background-color: white; color: black;">
+          <div style="font-size: 24px; font-weight: bold; margin-bottom: 20px; color: #333; background-color: white;">${title || 'Untitled'}</div>
+          <div style="line-height: 1.6; font-size: 14px; color: black; background-color: white;">${body}</div>
+        </div>
+      `;
+      
+      // Use html2pdf to generate and download PDF with white background
+      const filename = `${title || 'untitled'}-${new Date().toISOString().slice(0,10)}.pdf`;
+      const options = {
+        margin: 1,
+        filename: filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+          scale: 2,
+          backgroundColor: '#ffffff', // Force white background
+          useCORS: true
+        },
+        jsPDF: { 
+          unit: 'in', 
+          format: 'letter', 
+          orientation: 'portrait' 
+        }
+      };
+      
+      html2pdf().set(options).from(content).save();
+    }
+
+    // Open File functionality
+    if(openFileBtn && fileInput) {
+      openFileBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        fileInput.click();
+      });
+
+      fileInput.addEventListener('change', function(event) {
+        const file = this.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const arrayBuffer = event.target.result;
+          mammoth.convertToHtml({arrayBuffer: arrayBuffer})
+            .then(function(result) {
+              bodyInput.innerHTML = result.value; // đưa nội dung vào editor
+              // Set filename (without extension) as title
+              const fileName = file.name.replace(/\.(docx|doc)$/i, "");
+              titleInput.value = fileName;
+              showEditor(); // Switch to editor view
+              alert('File loaded successfully!');
+            })
+            .catch(console.error);
+        };
+        reader.readAsArrayBuffer(file);
+        
+        event.target.value = ''; // Clear the file input
+      });
+    }
+
+    // Accessibility: if empty and on mobile, focus editor by default
+    window.matchMedia('(max-width:767px)').matches ? showEditor() : showEditor();
   </script>
 </body>
 </html>
-
 
