@@ -67,19 +67,64 @@
     <div class="shell" id="appShell">
       <div class="toolbar-wrapper">
         <div class="toolbar" role="toolbar">
-          <button id="open-file-btn" class="tab-btn" title="Open File"><ion-icon name="folder-open-outline"></ion-icon> Open</button>
+          <button id="open-file-btn" class="tab-btn" title="Open File">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-6l-2-2H5a2 2 0 0 0-2 2z"/>
+            </svg>
+            Open
+          </button>
           <input id="file-input" type="file" accept=".docx,.doc" style="display:none" />
-          <button id="tab-edit" class="tab-btn active" aria-pressed="true"><ion-icon name="pencil-outline"></ion-icon> Note</button>
-          <button id="tab-list" class="tab-btn" aria-pressed="false"><ion-icon name="folder-outline"></ion-icon> Saved</button>
+          <button id="tab-edit" class="tab-btn active" aria-pressed="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Note
+          </button>
+          <button id="tab-list" class="tab-btn" aria-pressed="false">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+            </svg>
+            Saved
+          </button>
           <div class="export-dropdown">
-            <button id="export-btn" class="tab-btn" title="Export Notes"><ion-icon name="download-outline"></ion-icon> Export</button>
+            <button id="export-btn" class="tab-btn" title="Export Notes">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7,10 12,15 17,10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Export
+            </button>
             <div class="export-menu" id="export-menu">
-              <button id="export-docx" class="export-option"><ion-icon name="document-text-outline"></ion-icon>DOCX</button>
-              <button id="export-pdf" class="export-option"><ion-icon name="document-outline"></ion-icon>PDF</button>
+              <button id="export-docx" class="export-option">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14,2 14,8 20,8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                  <polyline points="10,9 9,9 8,9"/>
+                </svg>
+                DOCX
+              </button>
+              <button id="export-pdf" class="export-option">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14,2 14,8 20,8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                  <line x1="10" y1="9" x2="8" y2="9"/>
+                </svg>
+                PDF
+              </button>
             </div>
           </div>
           <div class="spacer"></div>
-          <button id="themeToggle" class="icon-btn icon-glass theme-toggle" title="Light/Dark Mode"><ion-icon id="themeIcon" name="moon-outline"></ion-icon></button>
+          <button id="themeToggle" class="icon-btn icon-glass theme-toggle" title="Light/Dark Mode">
+            <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -97,10 +142,24 @@
               <button id="btnItalic" class="icon-btn icon-glass" type="button" title="Italic (Ctrl/Cmd+I)"><span style="font-style:italic;">I</span></button>
               <button id="btnUnderline" class="icon-btn icon-glass" type="button" title="Underline (Ctrl/Cmd+U)"><span style="text-decoration:underline;">U</span></button>
               <input id="imgInput" type="file" accept="image/*" style="display:none" />
-              <button id="btnImage" class="icon-btn icon-glass" type="button" title="Insert Image"><ion-icon name="image-outline"></ion-icon></button>
+              <button id="btnImage" class="icon-btn icon-glass" type="button" title="Insert Image">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21,15 16,10 5,21"/>
+                </svg>
+              </button>
               <input id="colorInput" type="color" value="#000000" style="display:none" />
               <div class="color-dropdown">
-                <button id="btnColor" class="icon-btn icon-glass" type="button" title="Text Color"><ion-icon name="color-palette-outline"></ion-icon></button>
+                <button id="btnColor" class="icon-btn icon-glass" type="button" title="Text Color">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="13.5" cy="6.5" r=".5"/>
+                    <circle cx="17.5" cy="10.5" r=".5"/>
+                    <circle cx="8.5" cy="7.5" r=".5"/>
+                    <circle cx="6.5" cy="12.5" r=".5"/>
+                    <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
+                  </svg>
+                </button>
                 <div class="color-menu" id="color-menu">
                   <div class="color-section">
                     <div class="color-section-title">Quick Colors</div>
@@ -120,8 +179,21 @@
                 </div>
               </div>
               <div class="toolbar-separator"></div>
-              <button id="saveBtn" class="icon-btn icon-glass" type="button" title="Save Note (Ctrl/Cmd+S)"><ion-icon name="save-outline"></ion-icon></button>
-              <button id="clearBtn" class="icon-btn icon-glass" type="button" title="Clear Editor"><ion-icon name="trash-outline"></ion-icon></button>
+              <button id="saveBtn" class="icon-btn icon-glass" type="button" title="Save Note (Ctrl/Cmd+S)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                  <polyline points="17,21 17,13 7,13 7,21"/>
+                  <polyline points="7,3 7,8 15,8"/>
+                </svg>
+              </button>
+              <button id="clearBtn" class="icon-btn icon-glass" type="button" title="Clear Editor">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3,6 5,6 21,6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  <line x1="10" y1="11" x2="10" y2="17"/>
+                  <line x1="14" y1="11" x2="14" y2="17"/>
+                </svg>
+              </button>
             </div>
           </div>
           <div class="field">
@@ -187,9 +259,6 @@
     </div>
   </div>
 
-  <!-- Ionicons CDN for iOS-like icons -->
-  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
   <!-- HTML to DOCX conversion library -->
   <script src="https://unpkg.com/html-docx-js/dist/html-docx.js"></script>
   <!-- HTML to PDF conversion library -->
