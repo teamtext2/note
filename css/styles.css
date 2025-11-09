@@ -22,22 +22,47 @@ body{
 }
 .shell{background:var(--card); backdrop-filter:blur(14px) saturate(140%); -webkit-backdrop-filter:blur(14px) saturate(140%); border-radius:0; box-shadow:none; overflow:hidden; display:flex; flex-direction:column; min-height:100vh; max-height:100vh; border:none}
 
-/* toolbar: always sticky at top */
-.toolbar-wrapper{position:sticky; top:0; background:var(--card); backdrop-filter:blur(14px) saturate(140%); -webkit-backdrop-filter:blur(14px) saturate(140%); z-index:10; border-bottom:1px solid var(--border)}
-.toolbar{display:flex; gap:8px; padding:12px; align-items:center; justify-content:center; background:transparent}
+/* toolbar: always fixed at top */
+.toolbar-wrapper{position:fixed; top:0; left:0; right:0; background:var(--card); backdrop-filter:blur(14px) saturate(140%); -webkit-backdrop-filter:blur(14px) saturate(140%); z-index:10; border-bottom:1px solid var(--border); height:60px; box-sizing:border-box}
+.toolbar{display:flex; gap:8px; padding:12px; align-items:center; justify-content:center; background:transparent; height:100%; box-sizing:border-box}
 .toolbar .tab-btn{background:transparent;border:1px solid var(--border);padding:8px 12px;border-radius:12px;cursor:pointer;font-weight:600;color:var(--text)}
 .toolbar .tab-btn.active{background:rgba(255,255,255,0.15); color:var(--text); box-shadow:0 4px 12px rgba(108,92,231,0.12); border:1px solid var(--accent); backdrop-filter:blur(10px)}
 [data-theme="dark"] .toolbar .tab-btn.active{background:rgba(255,255,255,0.1); color:var(--text); border:1px solid var(--accent)}
 .toolbar .spacer{flex:1}
 .toolbar .theme-toggle{min-width:44px; height:36px; display:inline-flex; align-items:center; justify-content:center}
 
-.content{display:grid; grid-template-columns:1fr; gap:16px; padding:16px; flex:1; overflow-y:auto; max-height:calc(100vh - 120px)}
+.content{display:grid; grid-template-columns:1fr; gap:16px; padding:16px; flex:1; overflow-y:auto; max-height:calc(100vh - 60px); margin-top:60px; box-sizing:border-box}
 
 .editor{display:flex; flex-direction:column; gap:10px}
 .field{display:flex; flex-direction:column; gap:6px}
 input.title{padding:12px 14px; border-radius:12px; border:1px solid var(--border); font-size:16px; background:var(--card); color:var(--text); position:sticky; top:0; z-index:5; backdrop-filter:blur(10px)}
 .rte-box{display:flex; flex-direction:column; gap:8px}
-.rte-toolbar{display:flex; gap:8px; align-items:center; flex-wrap:wrap; position:sticky; top:60px; background:var(--card); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); z-index:4; padding:8px 0; border-radius:8px}
+.rte-toolbar{display:flex; gap:8px; align-items:center; flex-wrap:wrap; position:sticky; top:0; background:var(--card); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); z-index:6; padding:8px 0; border-radius:8px}
+/* Heading group collapsible */
+.heading-group{position:relative; display:inline-block; z-index:1001}
+.heading-toggle{display:flex; align-items:center; gap:4px}
+.heading-toggle .heading-icon{font-size:14px; transition:transform 0.3s ease}
+.heading-group.open .heading-toggle .heading-icon{transform:rotate(180deg)}
+.heading-menu{
+  position:fixed; 
+  background:var(--card); border:1px solid var(--border); border-radius:12px; 
+  box-shadow:var(--shadow); backdrop-filter:blur(14px) saturate(140%); 
+  -webkit-backdrop-filter:blur(14px) saturate(140%); 
+  display:none; z-index:9999; overflow:hidden; 
+  flex-direction:column; min-width:80px; padding:6px;
+  gap:4px;
+}
+.heading-menu.show{display:flex}
+.heading-option{
+  width:100%; 
+  justify-content:center; 
+  margin:0; 
+  padding:6px 8px;
+  transition:background 0.2s ease;
+}
+.heading-option:hover{
+  background:var(--subtle);
+}
 .toolbar-separator{width:1px; height:24px; background:var(--border); margin:0 4px}
 .rte-area{min-height:500px; resize:vertical; padding:14px; border-radius:12px; border:1px solid var(--border); font-size:15px; line-height:1.5; background:transparent; color:var(--text)}
 .rte-area img{max-width:100%; height:auto; border-radius:10px}
@@ -72,7 +97,8 @@ input.title{padding:12px 14px; border-radius:12px; border:1px solid var(--border
 @media (min-width:768px){
   .shell{min-height:100vh; max-height:100vh}
   .toolbar{justify-content:flex-start;padding:14px 16px}
-  .content{max-height:calc(100vh - 116px)}
+  .toolbar-wrapper{height:62px}
+  .content{max-height:calc(100vh - 62px); margin-top:62px}
 }
 /* Two-pane layout on large screens */
 @media (min-width:1024px){
@@ -84,7 +110,7 @@ input.title{padding:12px 14px; border-radius:12px; border:1px solid var(--border
   .toolbar{justify-content:center}
   body{padding:0}
   .shell{max-height:100vh}
-  .content{max-height:calc(100vh - 100px)}
+  .content{max-height:calc(100vh - 60px); margin-top:60px}
 }
 
 /* small screens tweak */

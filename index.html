@@ -89,9 +89,17 @@
           <!-- Move RTE toolbar above title -->
           <div class="field rte-box">
             <div class="rte-toolbar" aria-label="Formatting">
-              <button id="btnH1" class="icon-btn icon-glass" type="button" title="Heading 1"><span style="font-weight:700; font-size:1.2em;">H1</span></button>
-              <button id="btnH2" class="icon-btn icon-glass" type="button" title="Heading 2"><span style="font-weight:700; font-size:1em;">H2</span></button>
-              <button id="btnH3" class="icon-btn icon-glass" type="button" title="Heading 3"><span style="font-weight:700; font-size:0.9em;">H3</span></button>
+              <div class="heading-group">
+                <button id="headingToggle" class="icon-btn icon-glass heading-toggle" type="button" title="Headings">
+                  <span style="font-weight:700; font-size:1em;">H</span>
+                  <ion-icon name="chevron-down-outline" class="heading-icon"></ion-icon>
+                </button>
+                <div class="heading-menu" id="headingMenu">
+                  <button id="btnH1" class="icon-btn icon-glass heading-option" type="button" title="Heading 1"><span style="font-weight:700; font-size:1.2em;">H1</span></button>
+                  <button id="btnH2" class="icon-btn icon-glass heading-option" type="button" title="Heading 2"><span style="font-weight:700; font-size:1em;">H2</span></button>
+                  <button id="btnH3" class="icon-btn icon-glass heading-option" type="button" title="Heading 3"><span style="font-weight:700; font-size:0.9em;">H3</span></button>
+                </div>
+              </div>
               <div class="toolbar-separator"></div>
               <button id="btnBold" class="icon-btn icon-glass" type="button" title="Bold (Ctrl/Cmd+B)"><span style="font-weight:700;">B</span></button>
               <button id="btnItalic" class="icon-btn icon-glass" type="button" title="Italic (Ctrl/Cmd+I)"><span style="font-style:italic;">I</span></button>
