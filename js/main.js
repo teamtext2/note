@@ -22,9 +22,6 @@ const themeIcon = document.getElementById('themeIcon');
 const btnH1 = document.getElementById('btnH1');
 const btnH2 = document.getElementById('btnH2');
 const btnH3 = document.getElementById('btnH3');
-const headingToggle = document.getElementById('headingToggle');
-const headingMenu = document.getElementById('headingMenu');
-const headingGroup = headingToggle ? headingToggle.closest('.heading-group') : null;
 const btnBold = document.getElementById('btnBold');
 const btnItalic = document.getElementById('btnItalic');
 const btnUnderline = document.getElementById('btnUnderline');
@@ -246,58 +243,9 @@ function formatHeading(level){
   bodyInput.focus();
 }
 
-// Heading toggle functionality
-if(headingToggle && headingMenu) {
-  headingToggle.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const isShowing = headingMenu.classList.contains('show');
-    
-    if(!isShowing) {
-      // Calculate position for fixed menu
-      const rect = headingToggle.getBoundingClientRect();
-      headingMenu.style.top = (rect.bottom + 4) + 'px';
-      headingMenu.style.left = rect.left + 'px';
-    }
-    
-    headingMenu.classList.toggle('show');
-    if(headingGroup) headingGroup.classList.toggle('open');
-  });
-
-  // Close heading menu when clicking outside
-  document.addEventListener('click', (e) => {
-    if (headingGroup && !headingGroup.contains(e.target)) {
-      headingMenu.classList.remove('show');
-      headingGroup.classList.remove('open');
-    }
-  });
-  
-  // Update menu position on scroll/resize
-  window.addEventListener('scroll', () => {
-    if(headingMenu.classList.contains('show')) {
-      const rect = headingToggle.getBoundingClientRect();
-      headingMenu.style.top = (rect.bottom + 4) + 'px';
-      headingMenu.style.left = rect.left + 'px';
-    }
-  }, true);
-  
-  window.addEventListener('resize', () => {
-    if(headingMenu.classList.contains('show')) {
-      const rect = headingToggle.getBoundingClientRect();
-      headingMenu.style.top = (rect.bottom + 4) + 'px';
-      headingMenu.style.left = rect.left + 'px';
-    }
-  });
-
-  // Close menu after selecting a heading
-  if(btnH1) btnH1.addEventListener('click', ()=> { formatHeading(1); headingMenu.classList.remove('show'); if(headingGroup) headingGroup.classList.remove('open'); });
-  if(btnH2) btnH2.addEventListener('click', ()=> { formatHeading(2); headingMenu.classList.remove('show'); if(headingGroup) headingGroup.classList.remove('open'); });
-  if(btnH3) btnH3.addEventListener('click', ()=> { formatHeading(3); headingMenu.classList.remove('show'); if(headingGroup) headingGroup.classList.remove('open'); });
-} else {
-  // Fallback if toggle doesn't exist
-  if(btnH1) btnH1.addEventListener('click', ()=> formatHeading(1));
-  if(btnH2) btnH2.addEventListener('click', ()=> formatHeading(2));
-  if(btnH3) btnH3.addEventListener('click', ()=> formatHeading(3));
-}
+if(btnH1) btnH1.addEventListener('click', ()=> formatHeading(1));
+if(btnH2) btnH2.addEventListener('click', ()=> formatHeading(2));
+if(btnH3) btnH3.addEventListener('click', ()=> formatHeading(3));
 if(btnBold) btnBold.addEventListener('click', ()=> exec('bold'));
 if(btnItalic) btnItalic.addEventListener('click', ()=> exec('italic'));
 if(btnUnderline) btnUnderline.addEventListener('click', ()=> exec('underline'));
