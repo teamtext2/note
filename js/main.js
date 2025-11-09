@@ -19,6 +19,9 @@ const searchInput = document.getElementById('searchInput');
 const clearAll = document.getElementById('clearAll');
 const themeToggle = document.getElementById('themeToggle');
 const themeIcon = document.getElementById('themeIcon');
+const btnH1 = document.getElementById('btnH1');
+const btnH2 = document.getElementById('btnH2');
+const btnH3 = document.getElementById('btnH3');
 const btnBold = document.getElementById('btnBold');
 const btnItalic = document.getElementById('btnItalic');
 const btnUnderline = document.getElementById('btnUnderline');
@@ -128,7 +131,7 @@ function applyTheme(theme){
   localStorage.setItem(THEME_KEY, theme);
   if(themeIcon){ themeIcon.setAttribute('name', theme==='dark' ? 'sunny-outline' : 'moon-outline'); }
 }
-const savedTheme = localStorage.getItem(THEME_KEY) || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
 applyTheme(savedTheme);
 if(themeToggle){ themeToggle.addEventListener('click', ()=>{
   const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
@@ -137,6 +140,112 @@ if(themeToggle){ themeToggle.addEventListener('click', ()=>{
 
 // rich text commands
 function exec(cmd){ document.execCommand(cmd, false, null); bodyInput.focus(); }
+function formatHeading(level){
+  bodyInput.focus();
+  const sel = window.getSelection();
+  if(sel.rangeCount === 0) {
+    // Create a range at the current cursor position
+    const range = document.createRange();
+    range.selectNodeContents(bodyInput);
+    range.collapse(false);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+  
+  const range = sel.getRangeAt(0);
+  const selectedText = range.toString();
+  
+  // Find the current block element (paragraph, heading, div, etc.)
+  let container = range.commonAncestorContainer;
+  if(container.nodeType === Node.TEXT_NODE) {
+    container = container.parentElement;
+  }
+  
+  // Find the block-level parent
+  let blockElement = container;
+  while(blockElement && blockElement !== bodyInput) {
+    const tagName = blockElement.tagName ? blockElement.tagName.toLowerCase() : '';
+    if(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'div'].includes(tagName)) {
+      break;
+    }
+    blockElement = blockElement.parentElement;
+  }
+  
+  // If we have selected text
+  if(selectedText.trim()) {
+    // Extract the selected text and surrounding context
+    const heading = document.createElement(`h${level}`);
+    heading.textContent = selectedText.trim();
+    
+    // Replace the selected content with the heading
+    range.deleteContents();
+    range.insertNode(heading);
+    
+    // Add a new paragraph after the heading if needed
+    const nextSibling = heading.nextSibling;
+    if(!nextSibling || (nextSibling.nodeType === Node.TEXT_NODE && !nextSibling.textContent.trim())) {
+      const p = document.createElement('p');
+      p.innerHTML = '<br>';
+      heading.parentNode.insertBefore(p, heading.nextSibling);
+    }
+    
+    // Move cursor after the heading
+    const newRange = document.createRange();
+    newRange.setStartAfter(heading);
+    newRange.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(newRange);
+  } else {
+    // No selection - convert current block to heading
+    if(blockElement && blockElement !== bodyInput && blockElement.parentElement === bodyInput) {
+      // We're in a block element, convert it to heading
+      const text = blockElement.textContent || '';
+      const heading = document.createElement(`h${level}`);
+      heading.textContent = text.trim() || '';
+      if(!text.trim()) {
+        heading.innerHTML = '<br>';
+      }
+      
+      blockElement.parentNode.replaceChild(heading, blockElement);
+      
+      // Move cursor inside the heading
+      const newRange = document.createRange();
+      if(heading.firstChild) {
+        if(heading.firstChild.nodeType === Node.TEXT_NODE) {
+          newRange.setStart(heading.firstChild, heading.firstChild.textContent.length);
+        } else {
+          newRange.setStart(heading, 0);
+        }
+      } else {
+        newRange.setStart(heading, 0);
+      }
+      newRange.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(newRange);
+    } else {
+      // Create a new heading at cursor position
+      const heading = document.createElement(`h${level}`);
+      heading.innerHTML = '<br>';
+      
+      // Insert the heading
+      range.deleteContents();
+      range.insertNode(heading);
+      
+      // Move cursor inside the heading
+      const newRange = document.createRange();
+      newRange.setStart(heading, 0);
+      newRange.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(newRange);
+    }
+  }
+  
+  bodyInput.focus();
+}
+
+if(btnH1) btnH1.addEventListener('click', ()=> formatHeading(1));
+if(btnH2) btnH2.addEventListener('click', ()=> formatHeading(2));
+if(btnH3) btnH3.addEventListener('click', ()=> formatHeading(3));
 if(btnBold) btnBold.addEventListener('click', ()=> exec('bold'));
 if(btnItalic) btnItalic.addEventListener('click', ()=> exec('italic'));
 if(btnUnderline) btnUnderline.addEventListener('click', ()=> exec('underline'));
@@ -313,14 +422,25 @@ function exportToDocx() {
     return;
   }
   
-  // Create HTML content for DOCX export
+  // Create HTML content for DOCX export with proper heading styles
   const htmlContent = `
-    <div style="font-family: Arial, sans-serif; padding: 20px;">
-      <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 20px; color: #333;">${title || 'Untitled'}</h2>
-      <div style="line-height: 1.6; font-size: 14px;">
-        ${body}
-      </div>
-    </div>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <style>
+        body { font-family: Arial, sans-serif; padding: 20px; line-height: 1.6; }
+        h1 { font-size: 24px; font-weight: bold; margin: 20px 0 15px 0; color: #333; }
+        h2 { font-size: 20px; font-weight: bold; margin: 18px 0 12px 0; color: #444; }
+        h3 { font-size: 16px; font-weight: bold; margin: 16px 0 10px 0; color: #555; }
+        p { margin: 10px 0; }
+        img { max-width: 100%; height: auto; }
+      </style>
+    </head>
+    <body>
+      <h1 style="font-size: 28px; font-weight: bold; margin-bottom: 20px; color: #333;">${title || 'Untitled'}</h1>
+      ${body}
+    </body>
+    </html>
   `;
   
   try {
@@ -345,11 +465,15 @@ function exportToPdf() {
     return;
   }
   
-  // Create HTML content for PDF export with forced white background and black text
+  // Create HTML content for PDF export with proper heading styles and forced white background
   const content = `
     <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background-color: white; color: black;">
-      <div style="font-size: 24px; font-weight: bold; margin-bottom: 20px; color: #333; background-color: white;">${title || 'Untitled'}</div>
-      <div style="line-height: 1.6; font-size: 14px; color: black; background-color: white;">${body}</div>
+      <h1 style="font-size: 28px; font-weight: bold; margin-bottom: 20px; color: #333; background-color: white;">${title || 'Untitled'}</h1>
+      <div style="line-height: 1.6; font-size: 14px; color: black; background-color: white;">
+        ${body.replace(/<h1/g, '<h1 style="font-size: 24px; font-weight: bold; margin: 20px 0 15px 0; color: #333;"')
+                .replace(/<h2/g, '<h2 style="font-size: 20px; font-weight: bold; margin: 18px 0 12px 0; color: #444;"')
+                .replace(/<h3/g, '<h3 style="font-size: 16px; font-weight: bold; margin: 16px 0 10px 0; color: #555;"')}
+      </div>
     </div>
   `;
   
@@ -407,3 +531,5 @@ if(openFileBtn && fileInput) {
 
 // Accessibility: if empty and on mobile, focus editor by default
 window.matchMedia('(max-width:767px)').matches ? showEditor() : showEditor();
+
+
