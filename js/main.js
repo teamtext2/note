@@ -36,6 +36,132 @@ const exportPdf = document.getElementById('export-pdf');
 const openFileBtn = document.getElementById('open-file-btn');
 const fileInput = document.getElementById('file-input');
 
+// Helpers for file interoperability
+function sanitizeFileName(name){
+  if(!name) return 'untitled';
+  return name
+    .replace(/[\\/:*?"<>|]+/g, '-')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 80) || 'untitled';
+}
+
+function extractStyleValue(styleString, property){
+  if(!styleString) return '';
+  const regex = new RegExp(`${property}\\s*:\\s*([^;]+)`, 'i');
+  const match = styleString.match(regex);
+  return match ? match[1].trim() : '';
+}
+
+function unwrapElement(el){
+  if(!el || !el.parentNode) return;
+  while(el.firstChild){
+    el.parentNode.insertBefore(el.firstChild, el);
+  }
+  el.parentNode.removeChild(el);
+}
+
+function normalizeHtmlContent(sourceHtml){
+  const temp = document.createElement('div');
+  temp.innerHTML = sourceHtml || '';
+
+  // Remove unwanted tags
+  temp.querySelectorAll('script, style, iframe, object, embed').forEach(node => node.remove());
+
+  // Flatten resizable image containers into plain <img>
+  temp.querySelectorAll('div[style*="resize"][style*="overflow"]').forEach(wrapper => {
+    const img = wrapper.querySelector('img');
+    if(img){
+      const wrapperStyle = wrapper.getAttribute('style') || '';
+      const width = extractStyleValue(wrapperStyle, 'width') || img.style.width || '';
+      const height = extractStyleValue(wrapperStyle, 'height') || img.style.height || '';
+      if(width) img.style.width = width;
+      if(height) img.style.height = height;
+      img.style.maxWidth = '100%';
+      if(!height) img.style.height = 'auto';
+      wrapper.replaceWith(img);
+    } else {
+      unwrapElement(wrapper);
+    }
+  });
+
+  // Convert generic div wrappers to paragraphs when safe to do so
+  temp.querySelectorAll('div').forEach(div => {
+    if(div.querySelector('table, ul, ol, pre, blockquote, figure, img, video, iframe, code, div')) return;
+    const replacement = document.createElement('p');
+    replacement.innerHTML = div.innerHTML;
+    div.replaceWith(replacement);
+  });
+
+  // Ensure top-level stray text nodes are wrapped in paragraphs
+  Array.from(temp.childNodes).forEach(node => {
+    if(node.nodeType === Node.TEXT_NODE && node.textContent.trim()){
+      const p = document.createElement('p');
+      p.textContent = node.textContent.trim();
+      temp.replaceChild(p, node);
+    }
+  });
+
+  // Clean empty paragraphs (keep intentional blank lines via <br>)
+  temp.querySelectorAll('p').forEach(p => {
+    const content = p.innerHTML.replace(/&nbsp;/g, '').trim();
+    if(!content || content === '<br>' || content === '<br/>'){
+      p.innerHTML = '<br>';
+    }
+  });
+
+  return temp.innerHTML.trim();
+}
+
+function applyDefaultTextStyles(html){
+  const temp = document.createElement('div');
+  temp.innerHTML = html || '';
+
+  temp.querySelectorAll('h1').forEach(h => {
+    if(!h.style.fontSize) h.style.fontSize = '28px';
+    if(!h.style.fontWeight) h.style.fontWeight = '700';
+    if(!h.style.margin) h.style.margin = '20px 0 15px';
+    if(!h.style.color) h.style.color = '#333333';
+  });
+  temp.querySelectorAll('h2').forEach(h => {
+    if(!h.style.fontSize) h.style.fontSize = '22px';
+    if(!h.style.fontWeight) h.style.fontWeight = '700';
+    if(!h.style.margin) h.style.margin = '18px 0 12px';
+    if(!h.style.color) h.style.color = '#444444';
+  });
+  temp.querySelectorAll('h3').forEach(h => {
+    if(!h.style.fontSize) h.style.fontSize = '18px';
+    if(!h.style.fontWeight) h.style.fontWeight = '700';
+    if(!h.style.margin) h.style.margin = '16px 0 10px';
+    if(!h.style.color) h.style.color = '#555555';
+  });
+  temp.querySelectorAll('p').forEach(p => {
+    if(!p.style.margin) p.style.margin = '10px 0';
+    if(!p.style.lineHeight) p.style.lineHeight = '1.6';
+  });
+  temp.querySelectorAll('ul, ol').forEach(list => {
+    if(!list.style.margin) list.style.margin = '12px 0 12px 24px';
+    if(!list.style.padding) list.style.padding = '0 0 0 16px';
+  });
+  temp.querySelectorAll('li').forEach(li => {
+    if(!li.style.margin) li.style.margin = '4px 0';
+  });
+
+  return temp.innerHTML.trim();
+}
+
+function getPreparedBodyHtml(){
+  const rawHtml = bodyInput ? bodyInput.innerHTML : '';
+  return normalizeHtmlContent(rawHtml);
+}
+
+function applyImportedHtml(html){
+  const normalized = normalizeHtmlContent(html);
+  bodyInput.innerHTML = normalized || '';
+  bodyInput.focus();
+  editingId = null;
+}
+
 // init
 function load(){
   try{ notes = JSON.parse(localStorage.getItem(KEY) || '[]'); }
@@ -449,9 +575,11 @@ if(exportPdf) {
 // Export functions (placeholder implementations)
 function exportToDocx() {
   const title = titleInput.value.trim();
-  const body = (bodyInput.innerHTML || '').trim();
+  const preparedBody = getPreparedBodyHtml();
+  const styledBody = applyDefaultTextStyles(preparedBody);
+  const safeTitle = sanitizeFileName(title || 'untitled');
   
-  if (!title && !body) {
+  if (!title && !preparedBody) {
     alert('No content to export. Please write something first.');
     return;
   }
@@ -472,7 +600,7 @@ function exportToDocx() {
     </head>
     <body>
       <h1 style="font-size: 28px; font-weight: bold; margin-bottom: 20px; color: #333;">${title || 'Untitled'}</h1>
-      ${body}
+      ${styledBody}
     </body>
     </html>
   `;
@@ -481,7 +609,7 @@ function exportToDocx() {
     const converted = window.htmlDocx.asBlob(htmlContent);
     const link = document.createElement('a');
     link.href = URL.createObjectURL(converted);
-    link.download = `${title || 'untitled'}-${new Date().toISOString().slice(0,10)}.docx`;
+    link.download = `${safeTitle}-${new Date().toISOString().slice(0,10)}.docx`;
     link.click();
     URL.revokeObjectURL(link.href);
   } catch (error) {
@@ -492,9 +620,11 @@ function exportToDocx() {
 
 function exportToPdf() {
   const title = titleInput.value.trim();
-  const body = (bodyInput.innerHTML || '').trim();
+  const preparedBody = getPreparedBodyHtml();
+  const styledBody = applyDefaultTextStyles(preparedBody);
+  const safeTitle = sanitizeFileName(title || 'untitled');
   
-  if (!title && !body) {
+  if (!title && !preparedBody) {
     alert('No content to export. Please write something first.');
     return;
   }
@@ -504,15 +634,13 @@ function exportToPdf() {
     <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background-color: white; color: black;">
       <h1 style="font-size: 28px; font-weight: bold; margin-bottom: 20px; color: #333; background-color: white;">${title || 'Untitled'}</h1>
       <div style="line-height: 1.6; font-size: 14px; color: black; background-color: white;">
-        ${body.replace(/<h1/g, '<h1 style="font-size: 24px; font-weight: bold; margin: 20px 0 15px 0; color: #333;"')
-                .replace(/<h2/g, '<h2 style="font-size: 20px; font-weight: bold; margin: 18px 0 12px 0; color: #444;"')
-                .replace(/<h3/g, '<h3 style="font-size: 16px; font-weight: bold; margin: 16px 0 10px 0; color: #555;"')}
+        ${styledBody}
       </div>
     </div>
   `;
   
   // Use html2pdf to generate and download PDF with white background
-  const filename = `${title || 'untitled'}-${new Date().toISOString().slice(0,10)}.pdf`;
+  const filename = `${safeTitle}-${new Date().toISOString().slice(0,10)}.pdf`;
   const options = {
     margin: 1,
     filename: filename,
@@ -543,19 +671,62 @@ if(openFileBtn && fileInput) {
     const file = this.files[0];
     if (!file) return;
 
+    const extension = (file.name.split('.').pop() || '').toLowerCase();
+
+    if(extension === 'doc'){
+      alert('Legacy .doc files are not supported yet. Please convert them to .docx before importing.');
+      this.value = '';
+      return;
+    }
+
+    if(extension !== 'docx'){
+      alert('Unsupported file format. Please choose a DOCX file.');
+      this.value = '';
+      return;
+    }
+
     const reader = new FileReader();
-    reader.onload = function(event) {
-      const arrayBuffer = event.target.result;
-      mammoth.convertToHtml({arrayBuffer: arrayBuffer})
+    reader.onload = function(loadEvent) {
+      const arrayBuffer = loadEvent.target.result;
+      mammoth.convertToHtml(
+        { arrayBuffer },
+        {
+          convertImage: mammoth.images.inline(function(element) {
+            return element.read('base64').then(function(imageBuffer) {
+              return {
+                src: `data:${element.contentType};base64,${imageBuffer}`
+              };
+            });
+          }),
+          styleMap: [
+            "p[style-name='Heading 1'] => h1:fresh",
+            "p[style-name='Heading 2'] => h2:fresh",
+            "p[style-name='Heading 3'] => h3:fresh",
+            "p[style-name='Title'] => h1:fresh",
+            "p[style-name='Subtitle'] => h2:fresh",
+            "p[style-name='Quote'] => blockquote:fresh"
+          ]
+        }
+      )
         .then(function(result) {
-          bodyInput.innerHTML = result.value; // đưa nội dung vào editor
-          // Set filename (without extension) as title
-          const fileName = file.name.replace(/\.(docx|doc)$/i, "");
-          titleInput.value = fileName;
+          applyImportedHtml(result.value);
+          const fileName = file.name.replace(/\.(docx)$/i, '');
+          if(!titleInput.value.trim()){
+            titleInput.value = fileName;
+          }
           showEditor(); // Switch to editor view
+          if(result.messages && result.messages.length){
+            console.warn('DOCX import messages:', result.messages);
+          }
           alert('File loaded successfully!');
         })
-        .catch(console.error);
+        .catch(function(error){
+          console.error('Error importing DOCX:', error);
+          alert('Unable to import this DOCX file. Please verify the file is not corrupted.');
+        });
+    };
+    reader.onerror = function(){
+      alert('Unable to read the selected file. Please try again.');
     };
     reader.readAsArrayBuffer(file);
     
