@@ -68,6 +68,23 @@ function saveNote(){
   tabList.click(); // show saved notes after save
 }
 
+// Auto-save function (saves silently without alerts or tab switching)
+function autoSaveNote(){
+  const title = titleInput.value.trim();
+  const body = (bodyInput.innerHTML || '').trim();
+  if(!title && !body) return; // Don't save empty notes
+  if(editingId){
+    const i = notes.findIndex(n => n.id === editingId);
+    if(i>-1){ notes[i].title = title; notes[i].body = body; notes[i].updated = Date.now(); saveToStorage(); }
+  } else {
+    notes.unshift({ id: makeId(), title, body, created: Date.now(), updated: Date.now(), pinned:false });
+    saveToStorage();
+    // Update UI silently
+    renderNotesList();
+    updateCount();
+  }
+}
+
 function renderNotesList(filter=''){
   notesContainer.innerHTML = '';
   const f = filter.toLowerCase().trim();
@@ -377,6 +394,23 @@ document.addEventListener('keydown', (e)=>{
   if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s'){
     e.preventDefault(); saveNote();
   }
+});
+
+// Auto-save when user leaves the app
+window.addEventListener('beforeunload', (e)=>{
+  autoSaveNote();
+});
+
+// Auto-save when tab becomes hidden (user switches tabs or minimizes)
+document.addEventListener('visibilitychange', ()=>{
+  if(document.hidden){
+    autoSaveNote();
+  }
+});
+
+// Auto-save when page is about to be unloaded (additional safety)
+window.addEventListener('pagehide', ()=>{
+  autoSaveNote();
 });
 
 // initialize
