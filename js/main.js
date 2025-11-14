@@ -22,13 +22,41 @@ const themeIcon = document.getElementById('themeIcon');
 const btnH1 = document.getElementById('btnH1');
 const btnH2 = document.getElementById('btnH2');
 const btnH3 = document.getElementById('btnH3');
+const btnParagraph = document.getElementById('btnParagraph');
 const btnBold = document.getElementById('btnBold');
 const btnItalic = document.getElementById('btnItalic');
 const btnUnderline = document.getElementById('btnUnderline');
+const btnStrike = document.getElementById('btnStrike');
+const btnSuperscript = document.getElementById('btnSuperscript');
+const btnSubscript = document.getElementById('btnSubscript');
 const btnImage = document.getElementById('btnImage');
 const imgInput = document.getElementById('imgInput');
 const colorInput = document.getElementById('colorInput');
 const btnColor = document.getElementById('btnColor');
+const btnHighlight = document.getElementById('btnHighlight');
+const btnClearFormatting = document.getElementById('btnClearFormatting');
+const btnAlignLeft = document.getElementById('btnAlignLeft');
+const btnAlignCenter = document.getElementById('btnAlignCenter');
+const btnAlignRight = document.getElementById('btnAlignRight');
+const btnAlignJustify = document.getElementById('btnAlignJustify');
+const btnIndent = document.getElementById('btnIndent');
+const btnOutdent = document.getElementById('btnOutdent');
+const btnBulletList = document.getElementById('btnBulletList');
+const btnNumberedList = document.getElementById('btnNumberedList');
+const btnBlockquote = document.getElementById('btnBlockquote');
+const btnCodeBlock = document.getElementById('btnCodeBlock');
+const btnLink = document.getElementById('btnLink');
+const btnUnlink = document.getElementById('btnUnlink');
+const btnUndo = document.getElementById('btnUndo');
+const btnRedo = document.getElementById('btnRedo');
+const colorMenu = document.getElementById('color-menu');
+const colorMenuTitle = document.getElementById('colorMenuTitle');
+const colorMenuClose = document.getElementById('colorMenuClose');
+const customColorBtn = document.getElementById('customColorBtn');
+const customHighlightBtn = document.getElementById('customHighlightBtn');
+const highlightInput = document.getElementById('highlightInput');
+const textColorDot = document.getElementById('textColorDot');
+const highlightColorDot = document.getElementById('highlightColorDot');
 const exportBtn = document.getElementById('export-btn');
 const exportMenu = document.getElementById('export-menu');
 const exportDocx = document.getElementById('export-docx');
@@ -281,8 +309,108 @@ if(themeToggle){ themeToggle.addEventListener('click', ()=>{
   applyTheme(next);
 }); }
 
+// View settings: compact controls for editor display (font size, line-height, font-family, compact toolbar)
+const viewSettingsBtn = document.getElementById('viewSettingsBtn');
+const viewSettingsPanel = document.getElementById('viewSettingsPanel');
+const editorFontSize = document.getElementById('editorFontSize');
+const editorFontSizeValue = document.getElementById('editorFontSizeValue');
+const editorLineHeight = document.getElementById('editorLineHeight');
+const editorLineHeightValue = document.getElementById('editorLineHeightValue');
+const editorFontFamily = document.getElementById('editorFontFamily');
+const editorCompactToggle = document.getElementById('editorCompactToggle');
+const editorResetBtn = document.getElementById('editorResetBtn');
+const editorApplyBtn = document.getElementById('editorApplyBtn');
+const VIEW_PREF_KEY = 'note_view_prefs';
+
+function applyViewPrefs(prefs){
+  prefs = prefs || {};
+  const fontSize = prefs.fontSize || 15;
+  const lineHeight = prefs.lineHeight || 1.5;
+  const fontFamily = prefs.fontFamily || getComputedStyle(document.documentElement).getPropertyValue('--editor-font-family') || '';
+  const compact = !!prefs.compact;
+  const toolbarCollapsed = !!prefs.toolbarCollapsed;
+  document.documentElement.style.setProperty('--editor-font-size', fontSize + 'px');
+  document.documentElement.style.setProperty('--editor-line-height', lineHeight);
+  if(fontFamily) document.documentElement.style.setProperty('--editor-font-family', fontFamily);
+  if(editorFontSizeValue) editorFontSizeValue.textContent = fontSize + 'px';
+  if(editorLineHeightValue) editorLineHeightValue.textContent = lineHeight;
+  if(editorFontSize) editorFontSize.value = fontSize;
+  if(editorLineHeight) editorLineHeight.value = Math.round(lineHeight * 100);
+  if(editorFontFamily) editorFontFamily.value = fontFamily;
+  document.body.classList.toggle('compact-toolbar', compact);
+  if(editorCompactToggle) editorCompactToggle.checked = compact;
+  // apply collapsed state to rich-text toolbar
+  const rteToolbar = document.querySelector('.rte-toolbar');
+  const rteToggleEl = document.getElementById('rteToggle');
+  if(rteToolbar){
+    if(toolbarCollapsed) rteToolbar.classList.add('hidden'); else rteToolbar.classList.remove('hidden');
+  }
+  if(rteToggleEl){
+    rteToggleEl.textContent = toolbarCollapsed ? 'Format' : 'Hide';
+  }
+}
+
+function loadViewPrefs(){
+  try{ const raw = localStorage.getItem(VIEW_PREF_KEY); return raw ? JSON.parse(raw) : null; } catch(e){ return null; }
+}
+function saveViewPrefs(prefs){ try{ localStorage.setItem(VIEW_PREF_KEY, JSON.stringify(prefs||{})); } catch(e){} }
+
+if(viewSettingsBtn && viewSettingsPanel){
+  viewSettingsBtn.addEventListener('click', (e)=>{ e.stopPropagation(); const isHidden = viewSettingsPanel.classList.contains('hidden'); if(isHidden){ viewSettingsPanel.classList.remove('hidden'); viewSettingsPanel.setAttribute('aria-hidden','false'); } else { viewSettingsPanel.classList.add('hidden'); viewSettingsPanel.setAttribute('aria-hidden','true'); } });
+  document.addEventListener('click', (e)=>{ if(!viewSettingsPanel.contains(e.target) && e.target !== viewSettingsBtn){ viewSettingsPanel.classList.add('hidden'); viewSettingsPanel.setAttribute('aria-hidden','true'); } });
+}
+
+if(editorFontSize){ editorFontSize.addEventListener('input', (e)=>{ const v = parseInt(e.target.value,10)||15; if(editorFontSizeValue) editorFontSizeValue.textContent = v + 'px'; document.documentElement.style.setProperty('--editor-font-size', v + 'px'); }); }
+if(editorLineHeight){ editorLineHeight.addEventListener('input', (e)=>{ const v = (parseInt(e.target.value,10)||150)/100; if(editorLineHeightValue) editorLineHeightValue.textContent = v.toFixed(2); document.documentElement.style.setProperty('--editor-line-height', v); }); }
+if(editorFontFamily){ editorFontFamily.addEventListener('change', (e)=>{ const v = e.target.value; document.documentElement.style.setProperty('--editor-font-family', v); }); }
+if(editorCompactToggle){ editorCompactToggle.addEventListener('change', (e)=>{ document.body.classList.toggle('compact-toolbar', !!e.target.checked); }); }
+
+if(editorApplyBtn){ editorApplyBtn.addEventListener('click', ()=>{ const prefs = { fontSize: parseInt(editorFontSize.value,10)||15, lineHeight: (parseInt(editorLineHeight.value,10)||150)/100, fontFamily: editorFontFamily.value, compact: !!editorCompactToggle.checked, toolbarCollapsed: !!document.querySelector('.rte-toolbar')?.classList.contains('hidden') }; saveViewPrefs(prefs); applyViewPrefs(prefs); viewSettingsPanel.classList.add('hidden'); viewSettingsPanel.setAttribute('aria-hidden','true'); }); }
+if(editorResetBtn){ editorResetBtn.addEventListener('click', ()=>{ const defaults = { fontSize:15, lineHeight:1.5, fontFamily: "Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial", compact:false, toolbarCollapsed:false }; saveViewPrefs(defaults); applyViewPrefs(defaults); }); }
+
+// RTE toolbar toggle button (collapses/expands the formatting toolbar)
+const rteToggleBtn = document.getElementById('rteToggle');
+if(rteToggleBtn){
+  rteToggleBtn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const rte = document.querySelector('.rte-toolbar');
+    if(!rte) return;
+    const collapsed = rte.classList.toggle('hidden');
+    rteToggleBtn.textContent = collapsed ? 'Format' : 'Hide';
+    const prefs = loadViewPrefs() || {};
+    prefs.toolbarCollapsed = !!collapsed;
+    saveViewPrefs(prefs);
+  });
+}
+
+// initialize view preferences
+const savedView = loadViewPrefs();
+applyViewPrefs(savedView || { fontSize:15, lineHeight:1.5, fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--editor-font-family'), compact:false, toolbarCollapsed: window.matchMedia('(max-width:767px)').matches });
+
 // rich text commands
-function exec(cmd){ document.execCommand(cmd, false, null); bodyInput.focus(); }
+let toolbarUpdateRaf = null;
+function scheduleToolbarUpdate(){
+  if(toolbarUpdateRaf){
+    cancelAnimationFrame(toolbarUpdateRaf);
+  }
+  toolbarUpdateRaf = requestAnimationFrame(updateToolbarState);
+}
+
+function isSelectionInEditor(){
+  const sel = window.getSelection();
+  if(!sel || sel.rangeCount === 0) return false;
+  const anchor = sel.anchorNode;
+  if(!anchor) return false;
+  return anchor === bodyInput || bodyInput.contains(anchor);
+}
+
+function exec(cmd, value=null){
+  if(!bodyInput) return;
+  bodyInput.focus();
+  document.execCommand(cmd, false, value);
+  scheduleToolbarUpdate();
+}
+
 function formatHeading(level){
   bodyInput.focus();
   const sel = window.getSelection();
@@ -384,23 +512,399 @@ function formatHeading(level){
   }
   
   bodyInput.focus();
+  scheduleToolbarUpdate();
 }
 
+function formatBlockElement(tag){
+  if(!bodyInput) return;
+  const value = tag.startsWith('<') ? tag : `<${tag}>`;
+  exec('formatBlock', value);
+}
+
+function findAncestor(node, tagName){
+  if(!node) return null;
+  const target = tagName.toLowerCase();
+  let current = node.nodeType === Node.TEXT_NODE ? node.parentNode : node;
+  while(current && current !== bodyInput){
+    if(current.nodeType === Node.ELEMENT_NODE && current.tagName && current.tagName.toLowerCase() === target){
+      return current;
+    }
+    current = current.parentNode;
+  }
+  return null;
+}
+
+function getCurrentBlockElement(){
+  const sel = window.getSelection();
+  if(!sel || sel.rangeCount === 0) return null;
+  let node = sel.anchorNode;
+  if(!node) return null;
+  if(node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+  while(node && node !== bodyInput){
+    const tag = node.tagName ? node.tagName.toLowerCase() : '';
+    if(['p','h1','h2','h3','h4','h5','h6','blockquote','pre','li'].includes(tag)){
+      return node;
+    }
+    node = node.parentElement;
+  }
+  return null;
+}
+
+function getCurrentBlockTag(){
+  const block = getCurrentBlockElement();
+  return block && block.tagName ? block.tagName.toLowerCase() : '';
+}
+
+function placeCaretAtEnd(node){
+  if(!node) return;
+  const range = document.createRange();
+  range.selectNodeContents(node);
+  range.collapse(false);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+function placeCaretAtStart(node){
+  if(!node) return;
+  const range = document.createRange();
+  range.selectNodeContents(node);
+  range.collapse(true);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+function toggleBlockquote(){
+  if(!bodyInput) return;
+  bodyInput.focus();
+  const sel = window.getSelection();
+  if(!sel || sel.rangeCount === 0) return;
+  const blockquote = findAncestor(sel.anchorNode, 'blockquote');
+  if(blockquote){
+    const parent = blockquote.parentNode;
+    const fragment = document.createDocumentFragment();
+    while(blockquote.firstChild){
+      fragment.appendChild(blockquote.firstChild);
+    }
+    parent.replaceChild(fragment, blockquote);
+    placeCaretAtEnd(parent);
+  } else {
+    document.execCommand('formatBlock', false, 'blockquote');
+  }
+  scheduleToolbarUpdate();
+}
+
+function toggleCodeBlock(){
+  if(!bodyInput) return;
+  bodyInput.focus();
+  const sel = window.getSelection();
+  if(!sel || sel.rangeCount === 0) return;
+  const range = sel.getRangeAt(0);
+  const existing = findAncestor(range.commonAncestorContainer, 'pre');
+  if(existing){
+    const text = existing.textContent || '';
+    const paragraph = document.createElement('p');
+    paragraph.textContent = text;
+    const parent = existing.parentNode;
+    parent.replaceChild(paragraph, existing);
+    placeCaretAtEnd(paragraph);
+  } else {
+    const content = range.toString();
+    const pre = document.createElement('pre');
+    const code = document.createElement('code');
+    code.textContent = content || '';
+    if(!content){
+      code.appendChild(document.createTextNode('\n'));
+    }
+    pre.appendChild(code);
+    range.deleteContents();
+    range.insertNode(pre);
+    const spacer = document.createElement('p');
+    spacer.innerHTML = '<br>';
+    if(pre.nextSibling){
+      bodyInput.insertBefore(spacer, pre.nextSibling);
+    } else {
+      bodyInput.appendChild(spacer);
+    }
+    placeCaretAtStart(spacer);
+  }
+  scheduleToolbarUpdate();
+}
+
+function promptForLink(){
+  if(!bodyInput) return;
+  bodyInput.focus();
+  const sel = window.getSelection();
+  const existingLink = findAncestor(sel.anchorNode, 'a');
+  let url = existingLink ? existingLink.getAttribute('href') : '';
+  url = prompt('Enter URL', url || 'https://');
+  if(!url){
+    return;
+  }
+  if(!/^https?:\/\//i.test(url) && !url.startsWith('mailto:')){
+    url = `https://${url}`;
+  }
+  document.execCommand('createLink', false, url);
+  scheduleToolbarUpdate();
+}
+
+function clearFormatting(){
+  exec('removeFormat');
+  exec('unlink');
+  exec('hiliteColor', 'transparent');
+  updateColorDot(textColorDot, getComputedStyle(bodyInput).color);
+  updateColorDot(highlightColorDot, '');
+}
+
+function updateColorDot(targetEl, color){
+  if(!targetEl) return;
+  if(!color || color === 'transparent'){
+    targetEl.style.backgroundColor = 'transparent';
+    targetEl.style.borderColor = 'var(--border)';
+  } else {
+    targetEl.style.backgroundColor = color;
+    targetEl.style.borderColor = color;
+  }
+}
+
+function applyTextColor(color){
+  const value = color || getComputedStyle(bodyInput).color;
+  exec('foreColor', value);
+  updateColorDot(textColorDot, value);
+}
+
+function applyHighlight(color){
+  const value = color || '#fff8b5';
+  exec('hiliteColor', value);
+  updateColorDot(highlightColorDot, value === 'transparent' ? '' : value);
+}
+
+const toolbarToggleButtons = [
+  btnBold, btnItalic, btnUnderline, btnStrike, btnSuperscript, btnSubscript,
+  btnAlignLeft, btnAlignCenter, btnAlignRight, btnAlignJustify,
+  btnBulletList, btnNumberedList,
+  btnParagraph, btnH1, btnH2, btnH3,
+  btnBlockquote, btnCodeBlock
+].filter(Boolean);
+
+function updateToolbarState(){
+  if(!bodyInput) return;
+  const sel = window.getSelection();
+  if(!sel || sel.rangeCount === 0){
+    toolbarToggleButtons.forEach(btn => btn.classList.remove('is-active'));
+    return;
+  }
+  const anchor = sel.anchorNode;
+  if(!anchor || (anchor !== bodyInput && !bodyInput.contains(anchor))){
+    toolbarToggleButtons.forEach(btn => btn.classList.remove('is-active'));
+    return;
+  }
+  const commandStates = [
+    { btn: btnBold, command: 'bold' },
+    { btn: btnItalic, command: 'italic' },
+    { btn: btnUnderline, command: 'underline' },
+    { btn: btnStrike, command: 'strikeThrough' },
+    { btn: btnSuperscript, command: 'superscript' },
+    { btn: btnSubscript, command: 'subscript' },
+    { btn: btnAlignLeft, command: 'justifyLeft' },
+    { btn: btnAlignCenter, command: 'justifyCenter' },
+    { btn: btnAlignRight, command: 'justifyRight' },
+    { btn: btnAlignJustify, command: 'justifyFull' },
+    { btn: btnBulletList, command: 'insertUnorderedList' },
+    { btn: btnNumberedList, command: 'insertOrderedList' }
+  ];
+
+  commandStates.forEach(({ btn, command })=>{
+    if(!btn) return;
+    let active = false;
+    try{
+      active = document.queryCommandState(command);
+    } catch(err){
+      active = false;
+    }
+    btn.classList.toggle('is-active', !!active);
+  });
+
+  const blockTag = getCurrentBlockTag();
+  if(btnParagraph) btnParagraph.classList.toggle('is-active', blockTag === 'p');
+  if(btnH1) btnH1.classList.toggle('is-active', blockTag === 'h1');
+  if(btnH2) btnH2.classList.toggle('is-active', blockTag === 'h2');
+  if(btnH3) btnH3.classList.toggle('is-active', blockTag === 'h3');
+  if(btnBlockquote) btnBlockquote.classList.toggle('is-active', !!findAncestor(anchor, 'blockquote'));
+  if(btnCodeBlock) btnCodeBlock.classList.toggle('is-active', !!findAncestor(anchor, 'pre'));
+}
+
+if(btnParagraph) btnParagraph.addEventListener('click', ()=> formatBlockElement('p'));
 if(btnH1) btnH1.addEventListener('click', ()=> formatHeading(1));
 if(btnH2) btnH2.addEventListener('click', ()=> formatHeading(2));
 if(btnH3) btnH3.addEventListener('click', ()=> formatHeading(3));
 if(btnBold) btnBold.addEventListener('click', ()=> exec('bold'));
 if(btnItalic) btnItalic.addEventListener('click', ()=> exec('italic'));
 if(btnUnderline) btnUnderline.addEventListener('click', ()=> exec('underline'));
+if(btnStrike) btnStrike.addEventListener('click', ()=> exec('strikeThrough'));
+if(btnSuperscript) btnSuperscript.addEventListener('click', ()=> exec('superscript'));
+if(btnSubscript) btnSubscript.addEventListener('click', ()=> exec('subscript'));
+if(btnAlignLeft) btnAlignLeft.addEventListener('click', ()=> exec('justifyLeft'));
+if(btnAlignCenter) btnAlignCenter.addEventListener('click', ()=> exec('justifyCenter'));
+if(btnAlignRight) btnAlignRight.addEventListener('click', ()=> exec('justifyRight'));
+if(btnAlignJustify) btnAlignJustify.addEventListener('click', ()=> exec('justifyFull'));
+if(btnIndent) btnIndent.addEventListener('click', ()=> exec('indent'));
+if(btnOutdent) btnOutdent.addEventListener('click', ()=> exec('outdent'));
+if(btnBulletList) btnBulletList.addEventListener('click', ()=> exec('insertUnorderedList'));
+if(btnNumberedList) btnNumberedList.addEventListener('click', ()=> exec('insertOrderedList'));
+if(btnBlockquote) btnBlockquote.addEventListener('click', toggleBlockquote);
+if(btnCodeBlock) btnCodeBlock.addEventListener('click', toggleCodeBlock);
+if(btnLink) btnLink.addEventListener('click', promptForLink);
+if(btnUnlink) btnUnlink.addEventListener('click', ()=>{ exec('unlink'); });
+if(btnUndo) btnUndo.addEventListener('click', ()=> exec('undo'));
+if(btnRedo) btnRedo.addEventListener('click', ()=> exec('redo'));
 if(btnImage) btnImage.addEventListener('click', ()=> imgInput && imgInput.click());
+if(btnClearFormatting) btnClearFormatting.addEventListener('click', clearFormatting);
 
 // Color picker functionality
-if(btnColor) btnColor.addEventListener('click', ()=> colorInput && colorInput.click());
-if(colorInput) colorInput.addEventListener('change', (e)=>{
-  const color = e.target.value;
-  document.execCommand('foreColor', false, color);
-  bodyInput.focus();
+let currentColorTarget = 'text';
+
+function setColorMenuTarget(target){
+  currentColorTarget = target;
+  if(colorMenu){
+    colorMenu.dataset.target = target;
+  }
+  if(colorMenuTitle){
+    colorMenuTitle.textContent = target === 'highlight' ? 'Highlight color' : 'Text color';
+  }
+}
+
+function toggleColorMenu(target){
+  if(!colorMenu) return;
+  if(colorMenu.classList.contains('show') && currentColorTarget === target){
+    closeColorMenu();
+    return;
+  }
+  setColorMenuTarget(target);
+  colorMenu.classList.add('show');
+}
+
+function closeColorMenu(){
+  if(!colorMenu) return;
+  colorMenu.classList.remove('show');
+}
+
+if(btnColor){
+  btnColor.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    toggleColorMenu('text');
+  });
+}
+
+if(btnHighlight){
+  btnHighlight.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    toggleColorMenu('highlight');
+  });
+}
+
+if(colorMenuClose){
+  colorMenuClose.addEventListener('click', (e)=>{
+    e.preventDefault();
+    closeColorMenu();
+  });
+}
+
+if(colorMenu){
+  colorMenu.addEventListener('click', (e)=>{
+    const option = e.target.closest('.color-option');
+    if(!option) return;
+    e.preventDefault();
+    const action = option.dataset.action || '';
+    if(action === 'resetText'){
+      applyTextColor(getComputedStyle(bodyInput).color);
+      closeColorMenu();
+      return;
+    }
+    if(action === 'clearHighlight'){
+      applyHighlight('transparent');
+      closeColorMenu();
+      return;
+    }
+    const target = option.dataset.target || currentColorTarget;
+    const color = option.dataset.color;
+    if(!color) return;
+    if(target === 'highlight'){
+      applyHighlight(color);
+    } else {
+      applyTextColor(color);
+    }
+    closeColorMenu();
+  });
+}
+
+if(customColorBtn){
+  customColorBtn.addEventListener('click', (e)=>{
+    e.preventDefault();
+    setColorMenuTarget('text');
+    if(colorInput) colorInput.click();
+  });
+}
+
+if(customHighlightBtn){
+  customHighlightBtn.addEventListener('click', (e)=>{
+    e.preventDefault();
+    setColorMenuTarget('highlight');
+    if(highlightInput) highlightInput.click();
+  });
+}
+
+if(colorInput){
+  colorInput.addEventListener('change', (e)=>{
+    const color = e.target.value;
+    if(color){
+      applyTextColor(color);
+    }
+    closeColorMenu();
+  });
+}
+
+if(highlightInput){
+  highlightInput.addEventListener('change', (e)=>{
+    const color = e.target.value;
+    if(color){
+      applyHighlight(color);
+    }
+    closeColorMenu();
+  });
+}
+
+document.addEventListener('click', (event)=>{
+  if(!colorMenu || !colorMenu.classList.contains('show')) return;
+  if(colorMenu.contains(event.target)) return;
+  if(btnColor && btnColor.contains(event.target)) return;
+  if(btnHighlight && btnHighlight.contains(event.target)) return;
+  closeColorMenu();
 });
+
+document.addEventListener('keydown', (event)=>{
+  if(event.key === 'Escape'){
+    closeColorMenu();
+  }
+});
+
+if(bodyInput){
+  bodyInput.addEventListener('input', scheduleToolbarUpdate);
+  bodyInput.addEventListener('keyup', scheduleToolbarUpdate);
+}
+
+document.addEventListener('selectionchange', ()=>{
+  if(!isSelectionInEditor()){
+    toolbarToggleButtons.forEach(btn => btn.classList.remove('is-active'));
+    return;
+  }
+  scheduleToolbarUpdate();
+});
+
+updateColorDot(textColorDot, getComputedStyle(bodyInput).color);
+updateColorDot(highlightColorDot, '#fff8b5');
+scheduleToolbarUpdate();
 
 if(imgInput) imgInput.addEventListener('change', (e)=>{
   const file = e.target.files && e.target.files[0];

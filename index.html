@@ -80,48 +80,209 @@
           </div>
           <div class="spacer"></div>
           <button id="themeToggle" class="icon-btn icon-glass theme-toggle" title="Light/Dark Mode"><ion-icon id="themeIcon" name="moon-outline"></ion-icon></button>
+          <button id="viewSettingsBtn" class="icon-btn icon-glass" title="View settings"><span class="toolbar-label">Aa</span></button>
         </div>
       </div>
+
+    <!-- Compact view settings panel (hidden by default) -->
+    <div id="viewSettingsPanel" class="view-settings-panel hidden" aria-hidden="true">
+      <div class="row">
+        <label for="editorFontSize">Font size</label>
+        <span class="small" id="editorFontSizeValue">15px</span>
+      </div>
+      <input id="editorFontSize" type="range" min="12" max="22" step="1" value="15" />
+
+      <div class="row">
+        <label for="editorLineHeight">Line height</label>
+        <span class="small" id="editorLineHeightValue">1.5</span>
+      </div>
+      <!-- line height uses integer range where value / 100 = line-height -->
+      <input id="editorLineHeight" type="range" min="120" max="200" step="5" value="150" />
+
+      <div class="row">
+        <label for="editorFontFamily">Font family</label>
+      </div>
+      <select id="editorFontFamily">
+        <option value="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial">Inter / System</option>
+        <option value="Arial, Helvetica, sans-serif">Arial</option>
+        <option value="Georgia, 'Times New Roman', Times, serif">Serif (Georgia)</option>
+        <option value="'Courier New', Courier, monospace">Monospace</option>
+      </select>
+
+      <div class="row">
+        <label for="editorCompactToggle">Compact toolbar</label>
+        <input id="editorCompactToggle" type="checkbox" />
+      </div>
+
+      <div class="panel-actions">
+        <button id="editorResetBtn" class="btn clear" type="button">Reset</button>
+        <button id="editorApplyBtn" class="btn save" type="button">Apply</button>
+      </div>
+    </div>
 
       <div class="content">
         <!-- Editor view -->
         <div id="view-editor" class="editor" aria-hidden="false">
           <!-- Move RTE toolbar above title -->
           <div class="field rte-box">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px">
+              <button id="rteToggle" class="icon-btn icon-glass" title="Show formatting">Format</button>
+              <div style="flex:1"></div>
+            </div>
             <div class="rte-toolbar" aria-label="Formatting">
-              <button id="btnH1" class="icon-btn icon-glass" type="button" title="Heading 1"><span style="font-weight:700; font-size:1.2em;">H1</span></button>
-              <button id="btnH2" class="icon-btn icon-glass" type="button" title="Heading 2"><span style="font-weight:700; font-size:1em;">H2</span></button>
-              <button id="btnH3" class="icon-btn icon-glass" type="button" title="Heading 3"><span style="font-weight:700; font-size:0.9em;">H3</span></button>
-              <div class="toolbar-separator"></div>
-              <button id="btnBold" class="icon-btn icon-glass" type="button" title="Bold (Ctrl/Cmd+B)"><span style="font-weight:700;">B</span></button>
-              <button id="btnItalic" class="icon-btn icon-glass" type="button" title="Italic (Ctrl/Cmd+I)"><span style="font-style:italic;">I</span></button>
-              <button id="btnUnderline" class="icon-btn icon-glass" type="button" title="Underline (Ctrl/Cmd+U)"><span style="text-decoration:underline;">U</span></button>
-              <input id="imgInput" type="file" accept="image/*" style="display:none" />
-              <button id="btnImage" class="icon-btn icon-glass" type="button" title="Insert Image"><ion-icon name="image-outline"></ion-icon></button>
-              <input id="colorInput" type="color" value="#000000" style="display:none" />
-              <div class="color-dropdown">
-                <button id="btnColor" class="icon-btn icon-glass" type="button" title="Text Color"><ion-icon name="color-palette-outline"></ion-icon></button>
-                <div class="color-menu" id="color-menu">
-                  <div class="color-section">
-                    <div class="color-section-title">Quick Colors</div>
-                    <div class="color-grid">
-                      <div class="color-option" data-color="#ffffff" style="background-color: #ffffff; color: black; border: 2px solid #e5e7eb;" title="White">A</div>
-                      <div class="color-option" data-color="#dc2626" style="background-color: #dc2626; color: white;" title="Red">A</div>
-                      <div class="color-option" data-color="#16a34a" style="background-color: #16a34a; color: white;" title="Green">A</div>
-                      <div class="color-option" data-color="#ca8a04" style="background-color: #ca8a04; color: white;" title="Yellow">A</div>
+              <div class="toolbar-group" role="group" aria-label="Text structure">
+                <button id="btnParagraph" class="icon-btn icon-glass" type="button" title="Normal text"><span class="toolbar-label">P</span></button>
+                <button id="btnH1" class="icon-btn icon-glass" type="button" title="Heading 1"><span class="toolbar-label">H1</span></button>
+                <button id="btnH2" class="icon-btn icon-glass" type="button" title="Heading 2"><span class="toolbar-label">H2</span></button>
+                <button id="btnH3" class="icon-btn icon-glass" type="button" title="Heading 3"><span class="toolbar-label">H3</span></button>
+              </div>
+
+              <div class="toolbar-group" role="group" aria-label="Text styling">
+                <button id="btnBold" class="icon-btn icon-glass" type="button" title="Bold (Ctrl/Cmd+B)"><span class="toolbar-label">B</span></button>
+                <button id="btnItalic" class="icon-btn icon-glass" type="button" title="Italic (Ctrl/Cmd+I)"><span class="toolbar-label italic">I</span></button>
+                <button id="btnUnderline" class="icon-btn icon-glass" type="button" title="Underline (Ctrl/Cmd+U)"><span class="toolbar-label underline">U</span></button>
+                <button id="btnStrike" class="icon-btn icon-glass" type="button" title="Strikethrough (Ctrl/Cmd+Shift+X)"><span class="toolbar-label strike">S</span></button>
+                <button id="btnSuperscript" class="icon-btn icon-glass" type="button" title="Superscript"><span class="toolbar-label">x<sup>2</sup></span></button>
+                <button id="btnSubscript" class="icon-btn icon-glass" type="button" title="Subscript"><span class="toolbar-label">x<sub>2</sub></span></button>
+                <div class="color-dropdown">
+                  <button id="btnColor" class="icon-btn icon-glass color-trigger" type="button" title="Text color">
+                    <span class="toolbar-label">A</span>
+                    <span class="color-dot" id="textColorDot"></span>
+                  </button>
+                  <button id="btnHighlight" class="icon-btn icon-glass color-trigger" type="button" title="Highlight color">
+                    <span class="toolbar-label">A</span>
+                    <span class="color-dot highlight" id="highlightColorDot"></span>
+                  </button>
+                  <div class="color-menu" id="color-menu" data-target="text">
+                    <div class="color-menu-header">
+                      <span id="colorMenuTitle">Text color</span>
+                      <button type="button" class="color-menu-close" id="colorMenuClose" aria-label="Close color menu">&times;</button>
                     </div>
-                  </div>
-                  <div class="color-section">
-                    <div class="color-section-title">Custom Color</div>
-                    <div class="color-grid">
-                      <div class="color-option color-custom" id="customColorBtn" title="Choose Custom Color">Custom</div>
+                    <div class="color-section" data-section="text">
+                      <div class="color-section-title">Quick colors</div>
+                      <div class="color-grid">
+                        <button type="button" class="color-option" data-target="text" data-color="#111827" style="background-color:#111827; color:#ffffff;" title="Deep gray">A</button>
+                        <button type="button" class="color-option" data-target="text" data-color="#1f2937" style="background-color:#1f2937; color:#ffffff;" title="Slate">A</button>
+                        <button type="button" class="color-option" data-target="text" data-color="#374151" style="background-color:#374151; color:#ffffff;" title="Charcoal">A</button>
+                        <button type="button" class="color-option" data-target="text" data-color="#2563eb" style="background-color:#2563eb; color:#ffffff;" title="Azure">A</button>
+                        <button type="button" class="color-option" data-target="text" data-color="#16a34a" style="background-color:#16a34a; color:#ffffff;" title="Emerald">A</button>
+                        <button type="button" class="color-option" data-target="text" data-color="#dc2626" style="background-color:#dc2626; color:#ffffff;" title="Crimson">A</button>
+                      </div>
+                      <button type="button" class="color-option color-reset" data-action="resetText">Reset text color</button>
+                      <button type="button" class="color-option color-custom" id="customColorBtn" title="Choose custom text color">Custom color…</button>
+                    </div>
+                    <div class="color-section" data-section="highlight">
+                      <div class="color-section-title">Highlights</div>
+                      <div class="color-grid">
+                        <button type="button" class="color-option color-highlight" data-target="highlight" data-color="#fff8b5" title="Soft yellow" style="color:#fff8b5;"></button>
+                        <button type="button" class="color-option color-highlight" data-target="highlight" data-color="#fde68a" title="Golden" style="color:#fde68a;"></button>
+                        <button type="button" class="color-option color-highlight" data-target="highlight" data-color="#bbf7d0" title="Mint" style="color:#bbf7d0;"></button>
+                        <button type="button" class="color-option color-highlight" data-target="highlight" data-color="#bae6fd" title="Sky" style="color:#bae6fd;"></button>
+                        <button type="button" class="color-option color-highlight" data-target="highlight" data-color="#fecdd3" title="Blush" style="color:#fecdd3;"></button>
+                        <button type="button" class="color-option color-highlight" data-target="highlight" data-color="#f3e8ff" title="Lavender" style="color:#f3e8ff;"></button>
+                      </div>
+                      <button type="button" class="color-option color-reset" data-action="clearHighlight">Clear highlight</button>
+                      <button type="button" class="color-option color-custom" id="customHighlightBtn" title="Choose custom highlight">Custom highlight…</button>
                     </div>
                   </div>
                 </div>
+                <button id="btnClearFormatting" class="icon-btn icon-glass" type="button" title="Clear formatting">Fx</button>
               </div>
-              <div class="toolbar-separator"></div>
-              <button id="saveBtn" class="icon-btn icon-glass" type="button" title="Save Note (Ctrl/Cmd+S)"><ion-icon name="save-outline"></ion-icon></button>
-              <button id="clearBtn" class="icon-btn icon-glass" type="button" title="Clear Editor"><ion-icon name="trash-outline"></ion-icon></button>
+
+              <div class="toolbar-group" role="group" aria-label="Alignment and spacing">
+                <button id="btnAlignLeft" class="icon-btn icon-glass" type="button" title="Align left">
+                  <svg class="toolbar-svg" viewBox="0 0 20 20" aria-hidden="true">
+                    <rect x="2" y="3" width="16" height="2" rx="1"></rect>
+                    <rect x="2" y="8" width="12" height="2" rx="1"></rect>
+                    <rect x="2" y="13" width="16" height="2" rx="1"></rect>
+                    <rect x="2" y="18" width="14" height="2" rx="1"></rect>
+                  </svg>
+                </button>
+                <button id="btnAlignCenter" class="icon-btn icon-glass" type="button" title="Align center">
+                  <svg class="toolbar-svg" viewBox="0 0 20 20" aria-hidden="true">
+                    <rect x="2" y="3" width="16" height="2" rx="1"></rect>
+                    <rect x="4" y="8" width="12" height="2" rx="1"></rect>
+                    <rect x="2" y="13" width="16" height="2" rx="1"></rect>
+                    <rect x="5" y="18" width="10" height="2" rx="1"></rect>
+                  </svg>
+                </button>
+                <button id="btnAlignRight" class="icon-btn icon-glass" type="button" title="Align right">
+                  <svg class="toolbar-svg" viewBox="0 0 20 20" aria-hidden="true">
+                    <rect x="2" y="3" width="16" height="2" rx="1"></rect>
+                    <rect x="6" y="8" width="12" height="2" rx="1"></rect>
+                    <rect x="2" y="13" width="16" height="2" rx="1"></rect>
+                    <rect x="8" y="18" width="10" height="2" rx="1"></rect>
+                  </svg>
+                </button>
+                <button id="btnAlignJustify" class="icon-btn icon-glass" type="button" title="Justify">
+                  <svg class="toolbar-svg" viewBox="0 0 20 20" aria-hidden="true">
+                    <rect x="2" y="3" width="16" height="2" rx="1"></rect>
+                    <rect x="2" y="8" width="16" height="2" rx="1"></rect>
+                    <rect x="2" y="13" width="16" height="2" rx="1"></rect>
+                    <rect x="2" y="18" width="16" height="2" rx="1"></rect>
+                  </svg>
+                </button>
+                <button id="btnOutdent" class="icon-btn icon-glass" type="button" title="Decrease indent">
+                  <svg class="toolbar-svg" viewBox="0 0 20 20" aria-hidden="true">
+                    <rect x="9" y="3" width="9" height="2" rx="1"></rect>
+                    <rect x="9" y="8" width="9" height="2" rx="1"></rect>
+                    <rect x="9" y="13" width="9" height="2" rx="1"></rect>
+                    <polygon points="2,8 7,5 7,11"></polygon>
+                  </svg>
+                </button>
+                <button id="btnIndent" class="icon-btn icon-glass" type="button" title="Increase indent">
+                  <svg class="toolbar-svg" viewBox="0 0 20 20" aria-hidden="true">
+                    <rect x="2" y="3" width="9" height="2" rx="1"></rect>
+                    <rect x="2" y="8" width="9" height="2" rx="1"></rect>
+                    <rect x="2" y="13" width="9" height="2" rx="1"></rect>
+                    <polygon points="13,5 18,8 13,11"></polygon>
+                  </svg>
+                </button>
+              </div>
+
+              <div class="toolbar-group" role="group" aria-label="Lists">
+                <button id="btnBulletList" class="icon-btn icon-glass" type="button" title="Bulleted list">
+                  <svg class="toolbar-svg" viewBox="0 0 20 20" aria-hidden="true">
+                    <circle cx="4" cy="5" r="1.5"></circle>
+                    <circle cx="4" cy="10" r="1.5"></circle>
+                    <circle cx="4" cy="15" r="1.5"></circle>
+                    <rect x="8" y="4" width="10" height="2" rx="1"></rect>
+                    <rect x="8" y="9" width="8" height="2" rx="1"></rect>
+                    <rect x="8" y="14" width="9" height="2" rx="1"></rect>
+                  </svg>
+                </button>
+                <button id="btnNumberedList" class="icon-btn icon-glass" type="button" title="Numbered list">
+                  <svg class="toolbar-svg" viewBox="0 0 20 20" aria-hidden="true">
+                    <text x="2.5" y="6" font-size="4" font-family="inherit" fill="currentColor">1</text>
+                    <text x="2.5" y="11" font-size="4" font-family="inherit" fill="currentColor">2</text>
+                    <text x="2.5" y="16" font-size="4" font-family="inherit" fill="currentColor">3</text>
+                    <rect x="8" y="4" width="10" height="2" rx="1"></rect>
+                    <rect x="8" y="9" width="8" height="2" rx="1"></rect>
+                    <rect x="8" y="14" width="9" height="2" rx="1"></rect>
+                  </svg>
+                </button>
+              </div>
+
+              <div class="toolbar-group" role="group" aria-label="Insertions">
+                <button id="btnBlockquote" class="icon-btn icon-glass" type="button" title="Block quote"><span class="toolbar-label">“”</span></button>
+                <button id="btnCodeBlock" class="icon-btn icon-glass" type="button" title="Code block"><span class="toolbar-label">&lt;/&gt;</span></button>
+                <button id="btnLink" class="icon-btn icon-glass" type="button" title="Insert link"><ion-icon name="link-outline"></ion-icon></button>
+                <button id="btnUnlink" class="icon-btn icon-glass" type="button" title="Remove link"><span class="toolbar-label">&times;</span></button>
+                <input id="imgInput" type="file" accept="image/*" style="display:none" />
+                <button id="btnImage" class="icon-btn icon-glass" type="button" title="Insert image"><ion-icon name="image-outline"></ion-icon></button>
+              </div>
+
+              <div class="toolbar-group" role="group" aria-label="History">
+                <button id="btnUndo" class="icon-btn icon-glass" type="button" title="Undo"><span class="toolbar-label">↺</span></button>
+                <button id="btnRedo" class="icon-btn icon-glass" type="button" title="Redo"><span class="toolbar-label">↻</span></button>
+              </div>
+
+              <div class="toolbar-group" role="group" aria-label="Actions">
+                <button id="saveBtn" class="icon-btn icon-glass" type="button" title="Save note (Ctrl/Cmd+S)"><ion-icon name="save-outline"></ion-icon></button>
+                <button id="clearBtn" class="icon-btn icon-glass" type="button" title="Clear editor"><ion-icon name="trash-outline"></ion-icon></button>
+              </div>
+              <input id="colorInput" type="color" value="#111827" style="display:none" />
+              <input id="highlightInput" type="color" value="#fff8b5" style="display:none" />
             </div>
           </div>
           <div class="field">
